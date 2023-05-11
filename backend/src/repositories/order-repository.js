@@ -15,5 +15,9 @@ exports.create = async (data) => {
 }
 
 exports.delete = async (id) => {
-    await Order.findOneAndRemove(id);
+    await Order.findByIdAndDelete(id);
+}
+
+exports.deleteByCode = async (code) => {
+    await Order.findOneAndDelete({ number: code });
 }

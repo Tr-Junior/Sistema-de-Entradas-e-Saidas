@@ -1,0 +1,99 @@
+<app-loading *ngIf="busy"></app-loading>
+<div [formGroup]="form" class="card flex flex-column md:flex-row gap-3 formgroup-inline">
+  <div class="field">
+    <span class="font-bold block mb-2">Nome do Produto</span>
+    <input pInputText id="product" formControlName="title"
+      [ngClass]="{'uk-form-danger': (!form.controls['title'].valid && !form.controls['title'].pristine) }" />
+
+  </div>
+  <div class="field">
+    <span class="font-bold block mb-2">Quantidade</span>
+    <p-inputNumber formControlName="quantity" id="productQuantity" inputId="integeronly"
+      [ngClass]="{'uk-form-danger': (!form.controls['quantity'].valid && !form.controls['quantity'].pristine) }">
+    </p-inputNumber>
+  </div>
+  <div class="field">
+    <span class="font-bold block mb-2">Valor de compra</span>
+    <p-inputNumber formControlName="purchasePrice" inputId="currency-us" mode="currency" currency="BRL" locale="pt"
+      id="productPurchasePrice"
+      [ngClass]="{'uk-form-danger': (!form.controls['purchasePrice'].valid && !form.controls['purchasePrice'].pristine) }">
+    </p-inputNumber>
+  </div>
+  <div class="field">
+    <span class="font-bold block mb-2">Valor de venda</span>
+    <p-inputNumber formControlName="price" inputId="currency-us" mode="currency" currency="BRL" locale="pt"
+      id="productPrice" [ngClass]="{'uk-form-danger': (!form.controls['price'].valid && !form.controls['price']) }">
+    </p-inputNumber>
+  </div>
+  <div class="card flex justify-content">
+    <p-button icon="pi pi-check" label="Salvar" (click)="save()" *ngIf="!busy"></p-button>
+  </div>
+  <div class="card flex justify-content">
+    <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-danger"></p-button>
+  </div>
+</div>
+<div class="card">
+  <ng-template pTemplate="caption">
+    <div class="table-header">
+      Lista de Produtos
+    </div>
+  </ng-template>
+  <p-table #dt [value]="product" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} produtos"
+    [rowsPerPageOptions]="[5, 10, 15, 25, 50]" [tableStyle]="{'min-width': '50rem'}" styleClass="p-datatable-striped">
+    <ng-template pTemplate="caption">
+      <div class="flex">
+        <span class="p-input-icon-left ml-auto">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" [(ngModel)]="name" (ngModelChange)="search()" placeholder="Buscar" />
+        </span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:25%">Nome</th>
+        <th style="width:25%">Quantidade</th>
+        <th style="width:25%">Valor de compra</th>
+        <th style="width:20%">Valor de venda</th>
+        <th style="width:35%" colspan="3">Ações</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+      <tr>
+        <td>{{product.title}}</td>
+        <td>
+          <div
+            [ngClass]="{'outofstok': product.quantity === 0, 'lowstock': (product.quantity > 0 && product.quantity < 10),'instock': product.quantity > 10}">
+            {{product.quantity}}
+          </div>
+        </td>
+        <td>{{ product.purchasePrice | currency}}</td>
+        <td>{{ product.price | currency}}</td>
+        <td> <p-toast></p-toast>
+          <p-button icon="pi pi-cart-plus" styleClass="p-button-rounded p-button-success p-button-outlined"
+            (click)="addToCart(product)"></p-button>
+        </td>
+        <td>
+          <p-toast></p-toast>
+          <p-button icon="pi pi-pencil" styleClass="p-button-rounded p-button-warning p-button-outlined"
+            (click)="getProductById(product._id)"></p-button>
+        </td>
+        <td>
+          <p-button icon="pi pi-trash" styleClass="p-button-rounded p-button-danger p-button-outlined" [swal]="{
+            title: 'atenção',
+            background: '#737373',
+            width: 300,
+            color:'#fff',
+            text: 'Deseja realmente excluir o produto: '+ product.title + '?',
+            showDenyButton: true,
+            denyButtonText: 'Não',
+            confirmButtonText: 'Sim',
+            icon: 'warning'
+        }" (confirm)="delete(product._id)"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <h5 class="uk-text-center" *ngIf="product.length == 0">Não há Produtos Cadastrados</h5>
+</div>

@@ -1,0 +1,96 @@
+<div [formGroup]="form" class="card">
+  <div class="formgroup-inline">
+    <div class="field">
+      <span class="font-bold block mb-2">Nome da despesa</span>
+      <label htmlFor="lastname1" class="p-sr-only">Nome da despesa</label>
+      <input formControlName="description" pInputText type="text" [ngClass]="{
+          danger:
+            !form.controls['description'].valid &&
+            !form.controls['description'].pristine
+        }" />
+    </div>
+    <div class="field">
+      <span class="font-bold block mb-2">Valor da despesa</span>
+      <label htmlFor="firstname1" class="p-sr-only">Firstname</label>
+      <p-inputNumber formControlName="value" mode="currency" currency="BRL" id="productPurchasePrice" [ngClass]="{
+          danger:
+            !form.controls['value'].valid && !form.controls['value'].pristine
+        }">
+      </p-inputNumber>
+    </div>
+    <div class="field">
+      <span class="font-bold block mb-2">Data da Despesa</span>
+      <p-calendar formControlName="date" [showIcon]="true" dateFormat="dd/mm/yy" [locale]="ptBR" [ngClass]="{
+          danger:
+            !form.controls['date'].valid && !form.controls['date'].pristine
+        }"></p-calendar>
+    </div>
+    <div class="card flex justify-content">
+      <p-button icon="pi pi-check" label="Salvar" (click)="save()"></p-button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <ng-template pTemplate="caption">
+    <div class="table-header">Lista de Produtos</div>
+  </ng-template>
+  <p-table #dt [value]="exits" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Saídas"
+    [rowsPerPageOptions]="[5, 10, 15, 25, 50]" [tableStyle]="{ 'min-width': '50rem' }" styleClass="p-datatable-striped">
+    <ng-template pTemplate="caption">
+      <div class="flex">
+        <p-calendar [showIcon]="true" [(ngModel)]="startDate"></p-calendar>
+        <p-calendar [showIcon]="true" [(ngModel)]="endDate"></p-calendar>
+        <button pButton type="button" label="Search" icon="pi pi-search" (click)="searchDate()"></button>
+        <span class="p-input-icon-left ml-auto">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" [(ngModel)]="name" (ngModelChange)="search()" placeholder="Buscar" />
+        </span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 25%">Titulo</th>
+        <th style="width: 25%">Valor da despesa</th>
+        <th style="width: 25%">Data da despesa</th>
+        <th style="width: 5%" colspan="2">Ações</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-exits>
+      <tr>
+        <td>{{ exits.description }}</td>
+        <td>
+          <div>
+            {{ exits.value | currency }}
+          </div>
+        </td>
+        <td>{{ exits.date | date : "dd/MM/yyyy" }}</td>
+        <td>
+          <p-toast></p-toast>
+          <p-button icon="pi pi-pencil" styleClass="p-button-rounded p-button-warning p-button-outlined"
+            (click)="getExitsById(exits._id)"></p-button>
+        </td>
+        <td>
+          <p-button icon="pi pi-trash" styleClass="p-button-rounded p-button-danger p-button-outlined" [swal]="{
+              title: 'atenção',
+              background: '#737373',
+              width: 300,
+              color: '#fff',
+              text:
+                'Deseja realmente excluir o produto: ' +
+                exits.description +
+                '?',
+              showDenyButton: true,
+              denyButtonText: 'Não',
+              confirmButtonText: 'Sim',
+              icon: 'warning'
+            }" (confirm)="delete(exits._id)">
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <h5 class="uk-text-center" *ngIf="exits.length == 0">Não há Saídas</h5>
+</div>

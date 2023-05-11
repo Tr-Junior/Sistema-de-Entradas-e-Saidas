@@ -19,7 +19,20 @@ exports.get = async (req, res, next) => {
 
 exports.delete = async (req, res, next) => {
     try {
-        await repository.delete(req.body.id)
+        await repository.delete(req.params.id)
+        res.status(200).send({
+            message: 'Produto removido!'
+        });
+    } catch (e) {
+        res.status(500).send({
+            message: 'falha ao processar a requisição'
+        });
+    }
+}
+
+exports.deleteByCode = async (req, res, next) => {
+    try {
+        await repository.deleteByCode(req.params.code)
         res.status(200).send({
             message: 'Produto removido!'
         });

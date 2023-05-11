@@ -1,0 +1,46 @@
+<!-- <app-loading *ngIf="busy"></app-loading> -->
+
+<div class="uk-container">
+  <!-- <div class="uk-card-header">
+            <h3 class="uk-card-title uk-text-center">Lista de Usuários</h3>
+        </div> -->
+  <div class="uk-card-hover uk-card-body uk-card-default">
+    <div class="uk-margin">
+      <form class="uk-grid-small" uk-grid>
+        <div class="uk-width-1-5@s">
+          <span>Data Inicial</span>
+          <input class="uk-input uk-button-primary uk-width-medium uk-border-rounded" type="date" placeholder="Data"
+            aria-label="25">
+        </div>
+        <div class="uk-width-1-5@s">
+          <span>Data Final</span>
+          <input class="uk-input uk-button-primary uk-width-medium uk-border-rounded" type="date" placeholder="Data"
+            aria-label="25">
+        </div>
+      </form>
+    </div>
+    <table class="uk-table uk-table-divider uk-table-small uk-table-responsive">
+      <thead>
+        <tr>
+          <th class="uk-width-small">Descriçao da Despesa</th>
+          <th class="uk-width-small">Valor</th>
+          <th class="uk-width-small">Data</th>
+          <th class="uk-width-small">Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>
+            <a class="uk-text-default uk-text-middle uk-link-text uk-link-heading" href="">Editar <fa-icon
+                [icon]="faEdit" beat size="lg"></fa-icon></a>
+            <a class="uk-text-default uk-text-middle uk-link-text uk-link-heading" href="">Excluir
+              <fa-icon [icon]="faTrash" beat size="lg"></fa-icon></a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

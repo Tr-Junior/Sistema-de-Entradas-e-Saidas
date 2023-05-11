@@ -4,21 +4,21 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema({
 
-    name:{
+    name: {
         type: String,
         required: true,
     },
 
-    email:{
+    email: {
         type: String,
         required: true,
     },
 
-    password:{
+    password: {
         type: String,
         required: true,
     },
-    roles:[{
+    roles: [{
         type: String,
         required: true,
         enum: ['user', 'admin'],

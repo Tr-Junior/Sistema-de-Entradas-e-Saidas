@@ -1,0 +1,91 @@
+<!-- <app-navbar></app-navbar>
+
+
+<app-loading *ngIf="busy"></app-loading>
+<div class="uk-card-hover uk-card-body uk-card-default">
+  <form [formGroup]="form" *ngIf="!busy" class="uk-grid-small" uk-grid>
+    <div class="uk-width-1-4@s">
+      <span>Titulo</span>
+      <input formControlName="title" class=" uk-input uk-border-rounded" type="text"
+        [ngClass]="{'uk-form-danger': (!form.controls['title'].valid && !form.controls['title'].pristine) }">
+    </div>
+    <div class="uk-width-1-4@s">
+      <span>Quantidade</span>
+      <input formControlName="quantity" class="uk-input uk-border-rounded" type="text"
+        [ngClass]="{'uk-form-danger': (!form.controls['quantity'].valid && !form.controls['quantity'].pristine) }">
+    </div>
+    <div class="uk-width-1-4@s">
+      <span>Valor de Compra</span>
+      <input formControlName="purchasePrice" currencyMask class="uk-input uk-border-rounded" type="text"
+        [ngClass]="{'uk-form-danger': (!form.controls['purchasePrice'].valid && !form.controls['purchasePrice'].pristine) }">
+    </div>
+    <div class="uk-width-1-4@s">
+      <span>Valor de Venda</span>
+      <input formControlName="price" currencyMask class="uk-input uk-border-rounded" type="text"
+        [ngClass]="{'uk-form-danger': (!form.controls['price'].valid && !form.controls['price'].pristine) }">
+    </div>
+    <div class="uk-margin uk-text-right">
+      <button class="uk-button uk-button-primary uk-border-rounded" resetForm (click)="save()"
+        *ngIf="!busy">Cadastrar</button>
+    </div>
+  </form>
+</div>
+<!- <div class="uk-card-header">
+            <h3 class="uk-card-title uk-text-center">Lista de Usuários</h3>
+        </div> -->
+<!-- <div class="uk-flex-center " uk-grid>
+  <div class=" uk-width-1-1@m">
+    <div class="uk-card-hover uk-card-body uk-card-default">
+      <div class="uk-margin">
+        <form class="uk-search uk-search-default">
+          <span class="uk-search-icon-flip" uk-search-icon></span>
+          <input class="uk-search-input uk-border-rounded" type="search" placeholder="Search" aria-label="Search">
+        </form>
+      </div>
+      <table class="uk-table uk-table-divider uk-table-small uk-table-responsive">
+        <thead>
+          <tr>
+            <th class="uk-width-small">Código</th>
+            <th class="uk-width-small">Nome</th>
+            <th class="uk-width-small">Quantidade</th>
+            <th class="uk-width-small">Valor de Compra</th>
+            <th class="uk-width-small">Valor de Venda</th>
+            <th class="uk-width-small">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products$ | async">
+            <td>{{product.codigo}}</td>
+            <td>{{product.title}}</td>
+            <td>{{product.quantity}}</td>
+            <td>{{product.purchasePrice | currency}}</td>
+            <td>{{product.price | currency}}</td>
+            <td>
+              <a class="uk-text-default uk-link-text uk-link-heading uk-align-right" (click)="addToCart(product)">
+                asd</a>
+              <a class="uk-text-default uk-link-text uk-link-heading uk-align-right" uk-icon="icon: trash" [swal]="{
+                        title: 'atenção',
+                        background: '#737373',
+                        width: 300,
+                        color:'#fff',
+                        text: 'Deseja realmente excluir o produto: '+ product.title + '?',
+                        showDenyButton: true,
+                        denyButtonText: 'Não',
+                        confirmButtonText: 'Sim',
+                        icon: 'warning'
+                    }" (confirm)="delete(product._id)"></a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+
+
+<span class="p-float-label">
+  <input pInputText id="username" />
+  <label htmlFor="username">Username</label>
+</span> -->

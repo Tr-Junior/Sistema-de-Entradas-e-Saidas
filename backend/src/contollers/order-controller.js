@@ -27,26 +27,18 @@ exports.post = async (req, res, next) => {
         // const token = req.body.token || req.query.token || req.headers['x-access-token'];
 
         // const data = await authService.decodeToken(token);
-        //const soma = 0;
+        const number = guid.raw().substring(0, 6);
+
         await repository.create({
 
             //customer: data.name,
-            number: guid.raw().substring(0, 6),
-            sale: req.body.sale,
-            // sale: {
-            //     items: req.body.sale.items,
-            //     discount: req.body.sale.discount,
-
-            //     total: req.body.sale.items.forEach(async (e) => {
-            //         const total = (e.quantity * e.price);
-
-            //         console.log("total = ", soma);
-            //     })
-            // }
+            number: number,
+            sale: req.body.sale
         });
 
         await entrance.create(
             {
+                numberOfOrder: number,
                 value: req.body.sale.total
             }
         )
@@ -73,9 +65,21 @@ exports.post = async (req, res, next) => {
 
 exports.delete = async (req, res, next) => {
     try {
-        await repository.delete(req.body.id)
+        await repository.delete(req.params.id)
         res.status(200).send({
-            message: 'Produto removido!'
+            message: 'Venda Deletada!'
+        });
+    } catch (e) {
+        res.status(500).send({
+            message: 'falha ao processar a requisição'
+        });
+    }
+}
+exports.deleteByCode = async (req, res, next) => {
+    try {
+        await repository.deleteByCode(req.params.code)
+        res.status(200).send({
+            message: 'Venda Deletada!'
         });
     } catch (e) {
         res.status(500).send({

@@ -14,5 +14,9 @@ exports.get = async () => {
 }
 
 exports.delete = async (id) => {
-    await Entrance.findOneAndRemove(id);
+    await Entrance.findByIdAndDelete(id);
+}
+
+exports.deleteByCode = async (code) => {
+    await Entrance.findOneAndDelete({ numberOfOrder: code });
 }

@@ -56,7 +56,7 @@ exports.getByTag = async (req, res, next) => {
 exports.post = async (req, res, next) => {
 
     let contract = new ValidationContract();
-    contract.hasMinLen(req.body.title, 3, 'O título deve ser pelo menos 3 caracteres');
+    // contract.hasMinLen(req.body.title, 3, 'O título deve ser pelo menos 3 caracteres');
     // contract.hasMinLen(req.body.slug, 3, 'O slug deve ser pelo menos 3 caracteres');
     // contract.hasMinLen(req.body.description, 3, 'A description deve ser pelo menos 3 caracteres');
 
@@ -68,9 +68,10 @@ exports.post = async (req, res, next) => {
         await repository.create({
             codigo: guid.raw().substring(0, 6),
             title: req.body.title,
+            quantity: req.body.quantity,
             purchasePrice: req.body.purchasePrice,
             price: req.body.price,
-            quantity: req.body.quantity,
+
         });
         res.status(201).send({
             message: 'Produto cadastrado com sucesso!'
@@ -96,7 +97,7 @@ exports.put = async (req, res, next) => {
 
 exports.delete = async (req, res, next) => {
     try {
-        await repository.delete(req.body.id)
+        await repository.delete(req.params.id)
         res.status(200).send({
             message: 'Produto removido!'
         });

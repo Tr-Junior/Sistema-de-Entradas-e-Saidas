@@ -44,8 +44,8 @@ exports.update = async (id, data) => {
         $set: {
             title: data.title,
             quantity: data.quantity,
-            price: data.price,
-            slug: data.slug
+            purchasePrice: data.purchasePrice,
+            price: data.price
         }
     });
 }
