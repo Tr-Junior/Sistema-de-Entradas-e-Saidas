@@ -42,9 +42,9 @@ exports.getById = async (req, res, next) => {
     }
 }
 
-exports.getByTag = async (req, res, next) => {
+exports.getByTitle = async (req, res, next) => {
     try {
-        const data = await repository.getByTag(req.params.tag);
+        const data = await repository.getByTitle(req.params.title);
         res.status(200).send(data);
     } catch (e) {
         res.status(500).send({
@@ -56,9 +56,10 @@ exports.getByTag = async (req, res, next) => {
 exports.post = async (req, res, next) => {
 
     let contract = new ValidationContract();
-    // contract.hasMinLen(req.body.title, 3, 'O título deve ser pelo menos 3 caracteres');
-    // contract.hasMinLen(req.body.slug, 3, 'O slug deve ser pelo menos 3 caracteres');
-    // contract.hasMinLen(req.body.description, 3, 'A description deve ser pelo menos 3 caracteres');
+    contract.hasMinLen(req.body.title, 3, 'O título deve ter pelo menos 3 caracteres');
+    contract.hasMinLen(req.body.quantity, 1, 'A quantidade deve ter pelo menos 1 caractere');
+    contract.hasMinLen(req.body.purchasePrice, 1, 'O preço de  compra deve ter pelo menos 1 caractere');
+    contract.hasMinLen(req.body.price, 1, 'O preço deve ter pelo menos 1 caractere');
 
     if (!contract.isValid()) {
         res.status(400).send(contract.errors()).end();
@@ -87,6 +88,17 @@ exports.post = async (req, res, next) => {
 exports.put = async (req, res, next) => {
     try {
         await repository.update(req.params.id, req.body);
+        res.status(200).send({ message: 'Produto atualizado!' });
+    } catch (e) {
+        res.status(500).send({
+            message: 'falha ao processar a requisição'
+        });
+    }
+}
+
+exports.updateByIdBody = async (req, res, next) => {
+    try {
+        await repository.update(req.body.id, req.body);
         res.status(200).send({ message: 'Produto atualizado!' });
     } catch (e) {
         res.status(500).send({

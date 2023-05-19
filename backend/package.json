@@ -15,6 +15,7 @@
     "azure-storage": "^2.1.0",
     "cors": "^2.8.5",
     "debug": "^4.3.3",
+    "dotenv": "^16.0.3",
     "express": "^4.17.2",
     "guid": "^0.0.12",
     "http": "^0.0.1-security",

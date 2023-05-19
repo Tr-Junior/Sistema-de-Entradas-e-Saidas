@@ -1,46 +1,56 @@
-<!-- <app-loading *ngIf="busy"></app-loading> -->
-
-<div class="uk-container">
-  <!-- <div class="uk-card-header">
-            <h3 class="uk-card-title uk-text-center">Lista de Usuários</h3>
-        </div> -->
-  <div class="uk-card-hover uk-card-body uk-card-default">
-    <div class="uk-margin">
-      <form class="uk-grid-small" uk-grid>
-        <div class="uk-width-1-5@s">
-          <span>Data Inicial</span>
-          <input class="uk-input uk-button-primary uk-width-medium uk-border-rounded" type="date" placeholder="Data"
-            aria-label="25">
-        </div>
-        <div class="uk-width-1-5@s">
-          <span>Data Final</span>
-          <input class="uk-input uk-button-primary uk-width-medium uk-border-rounded" type="date" placeholder="Data"
-            aria-label="25">
-        </div>
-      </form>
-    </div>
-    <table class="uk-table uk-table-divider uk-table-small uk-table-responsive">
-      <thead>
-        <tr>
-          <th class="uk-width-small">Descriçao da Despesa</th>
-          <th class="uk-width-small">Valor</th>
-          <th class="uk-width-small">Data</th>
-          <th class="uk-width-small">Ação</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td>
-            <a class="uk-text-default uk-text-middle uk-link-text uk-link-heading" href="">Editar <fa-icon
-                [icon]="faEdit" beat size="lg"></fa-icon></a>
-            <a class="uk-text-default uk-text-middle uk-link-text uk-link-heading" href="">Excluir
-              <fa-icon [icon]="faTrash" beat size="lg"></fa-icon></a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<div class="card">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-end">
+    <span class="p-input-icon-left m-2">
+      <i class="pi pi-search"></i>
+      <p-calendar [showIcon]="true" [(ngModel)]="startDate" [locale]="ptBR" dateFormat="dd/mm/yy"></p-calendar>
+      <span class="mx-2"></span>
+      <p-calendar [showIcon]="true" [(ngModel)]="endDate" [locale]="ptBR" dateFormat="dd/mm/yy"></p-calendar>
+      <span class="mx-2"></span>
+      <button pButton type="button" label="Pesquisar" icon="pi pi-search" (click)="searchDate()"></button>
+      <span class="px-2"></span>
+      <button pButton type="button" label="Limpar" icon="pi pi-times" (click)="clearSearch()"></button>
+    </span>
   </div>
+  <p-card>
+    <ng-template pTemplate="title">
+      <h1 class="text-center">Resumo Financeiro</h1>
+    </ng-template>
+    <ng-template pTemplate="content">
+      <div class="p-grid p-justify-center">
+        <div class="p-col-12 p-md-4">
+          <p-card>
+            <ng-template pTemplate="title">
+              <h2 class="text-center">Total de Entradas</h2>
+            </ng-template>
+            <ng-template pTemplate="content">
+              <div class="text-center text-green-600 font-bold text-xl">{{ totalEntrances | currency }}</div>
+            </ng-template>
+          </p-card>
+        </div>
+        <div class="p-col-12 p-md-4">
+          <p-card>
+            <ng-template pTemplate="title">
+              <h2 class="text-center">Total de Saídas</h2>
+            </ng-template>
+            <ng-template pTemplate="content">
+              <div class="text-center text-red-600 font-bold text-xl">{{ totalExits | currency }}</div>
+            </ng-template>
+          </p-card>
+        </div>
+        <div class="p-col-12 p-md-4">
+          <p-card>
+            <ng-template pTemplate="title">
+              <h2 class="text-center">Saldo Total</h2>
+            </ng-template>
+            <ng-template pTemplate="content">
+              <div class="text-center text-yellow-600 font-bold text-xl"
+                [ngClass]="{'positive': result >= 0, 'negative': result < 0}">
+                {{ result | currency }}
+              </div>
+            </ng-template>
+          </p-card>
+        </div>
+      </div>
+    </ng-template>
+  </p-card>
 </div>

@@ -18,6 +18,10 @@ const schema = new Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Product'
             },
+            title: {
+                type: String,
+                trim: true
+            },
             quantity: {
                 type: Number,
                 required: true,

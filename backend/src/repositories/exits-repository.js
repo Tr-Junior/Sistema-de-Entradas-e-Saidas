@@ -14,6 +14,12 @@ exports.getById = async (id) => {
     return res;
 }
 
+exports.getByTitle = async (description) => {
+    const res = await Exits
+        .find({ description: { $regex: description, $options: 'i' } });
+    return res;
+}
+
 exports.create = async (data) => {
     var exits = new Exits(data)
     await exits.save();

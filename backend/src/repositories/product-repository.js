@@ -24,13 +24,9 @@ exports.getById = async (id) => {
     return res;
 }
 
-exports.getByTag = async (tag) => {
+exports.getByTitle = async (title) => {
     const res = await Product
-        .find({
-            tags: tag,
-            active: true
-        },
-            'title description price slug tags');
+        .find({ title: { $regex: title, $options: 'i' } });
     return res;
 }
 

@@ -6,9 +6,9 @@ const controller = require('../contollers/entrance-controller');
 const authService = require('../services/auth-service');
 
 
-router.get('/', controller.get);
-router.delete('/:id', controller.delete);
-router.delete('/deleteByCode/:code', controller.deleteByCode);
+router.get('/', authService.isAdmin, controller.get);
+router.delete('/:id', authService.isAdmin, controller.delete);
+router.delete('/deleteByCode/:code', authService.isAdmin, controller.deleteByCode);
 
 
 module.exports = router;

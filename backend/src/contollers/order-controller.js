@@ -24,14 +24,14 @@ exports.get = async (req, res, next) => {
 exports.post = async (req, res, next) => {
     try {
 
-        // const token = req.body.token || req.query.token || req.headers['x-access-token'];
+        const token = req.body.token || req.query.token || req.headers['x-access-token'];
 
-        // const data = await authService.decodeToken(token);
+        const data = await authService.decodeToken(token);
         const number = guid.raw().substring(0, 6);
 
         await repository.create({
 
-            //customer: data.name,
+            customer: data._id,
             number: number,
             sale: req.body.sale
         });

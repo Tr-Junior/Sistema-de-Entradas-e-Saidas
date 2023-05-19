@@ -1,33 +1,49 @@
+
 import { User } from "../models/user.model";
+import jwtDecode from 'jwt-decode';
 
 export class Security {
   public static set(user: User, token: string) {
     const data = JSON.stringify(user);
 
-    localStorage.setItem('wrconexao', btoa(data));
-    localStorage.setItem('wrconexaoToken', token);
+
+
+    sessionStorage.setItem('wrconexao', this.b64EncodeUnicode(data));
+    sessionStorage.setItem('wrconexaotoken', token);
+
+  }
+
+  public static isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (token) {
+      const decodedToken: any = jwtDecode(token); // Decodifica o token JWT para obter os dados
+      const expirationDate = new Date(decodedToken.exp * 1000); // Atribui a data de expiração do token em segundos
+      const now = new Date();
+      return now > expirationDate;
+    }
+    return true; // Se o token não estiver disponível, assume-se que o token tenha expirado
   }
 
   public static setUser(user: User) {
     const data = JSON.stringify(user);
-    localStorage.setItem('wrconexao', btoa(data));
+    sessionStorage.setItem('wrconexao', this.b64EncodeUnicode(data));
   }
 
   public static setToken(token: string) {
-    localStorage.setItem('wrconexaoToken', token);
+    sessionStorage.setItem('wrconexaotoken', token);
   }
 
   public static getUser(): User {
-    const data = localStorage.getItem('wrconexao');
+    const data = sessionStorage.getItem('wrconexao');
     if (data) {
-      return JSON.parse(atob(data));
+      return JSON.parse(this.b64DecodeUnicode(data));
     } else {
       return null as any;
     }
   }
 
   public static getToken(): string {
-    const data = localStorage.getItem('wrconexaoToken');
+    const data = sessionStorage.getItem('wrconexaotoken');
     if (data) {
       return data;
     } else {
@@ -43,7 +59,20 @@ export class Security {
   }
 
   public static clear() {
-    localStorage.removeItem('wrconexao');
-    localStorage.removeItem('wrconexaoToken');
+    sessionStorage.removeItem('wrconexao');
+    sessionStorage.removeItem('wrconexaotoken');
+  }
+
+  public static hasRole(role: string): boolean {
+    const user = this.getUser();
+    return user && user.roles.includes(role);
+  }
+
+  private static b64EncodeUnicode(str: string): string {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode(Number('0x' + p1))));
+  }
+
+  private static b64DecodeUnicode(str: string): string {
+    return decodeURIComponent(Array.prototype.map.call(window.atob(str), (c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
   }
 }

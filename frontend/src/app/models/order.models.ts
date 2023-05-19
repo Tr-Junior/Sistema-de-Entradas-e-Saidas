@@ -1,6 +1,7 @@
 
 export interface SaleItem {
   product: string;
+  title: string;
   quantity: number;
   price: number;
   _id: string;
@@ -12,11 +13,12 @@ export interface Order {
     total: number;
     formPayment: string;
   };
-  _id: string;
+  customer: string;
   number: string;
-  createDate: String;
+  createDate: Date;
 }
 export interface PaymentTotal {
   formPayment: string;
+  color: any;
   total: number;
 }

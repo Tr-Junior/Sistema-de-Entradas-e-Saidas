@@ -51,6 +51,11 @@ export class LoginPageComponent {
     }
   }
   submit() {
+    if (this.form.invalid) {
+      this.toastr.error('Por favor, preencha todos os campos!');
+      return;
+    }
+
     this.busy = true;
     this
       .service
@@ -58,14 +63,17 @@ export class LoginPageComponent {
       .subscribe(
         (data: any) => {
           this.busy = false;
+          this.toastr.success(data.message, 'Login efetuado com sucesso Bem Vindo!! ');
           this.setUser(data.user, data.token);
         },
         (err) => {
           console.log(err);
+          this.toastr.error(err.error.message);
           this.busy = false;
         }
       );
   }
+
   setUser(user: any, token: any) {
     Security.set(user, token);
     this.router.navigate(['/store']);

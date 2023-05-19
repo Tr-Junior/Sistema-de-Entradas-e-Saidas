@@ -1,86 +1,112 @@
-<app-loading *ngIf="busy"></app-loading>
-<div [formGroup]="form" class="card flex flex-column md:flex-row gap-3 formgroup-inline">
-  <div class="field">
-    <span class="font-bold block mb-2">Nome do Produto</span>
-    <input pInputText id="product" formControlName="title"
-      [ngClass]="{'uk-form-danger': (!form.controls['title'].valid && !form.controls['title'].pristine) }" />
-
-  </div>
-  <div class="field">
-    <span class="font-bold block mb-2">Quantidade</span>
-    <p-inputNumber formControlName="quantity" id="productQuantity" inputId="integeronly"
-      [ngClass]="{'uk-form-danger': (!form.controls['quantity'].valid && !form.controls['quantity'].pristine) }">
-    </p-inputNumber>
-  </div>
-  <div class="field">
-    <span class="font-bold block mb-2">Valor de compra</span>
-    <p-inputNumber formControlName="purchasePrice" inputId="currency-us" mode="currency" currency="BRL" locale="pt"
-      id="productPurchasePrice"
-      [ngClass]="{'uk-form-danger': (!form.controls['purchasePrice'].valid && !form.controls['purchasePrice'].pristine) }">
-    </p-inputNumber>
-  </div>
-  <div class="field">
-    <span class="font-bold block mb-2">Valor de venda</span>
-    <p-inputNumber formControlName="price" inputId="currency-us" mode="currency" currency="BRL" locale="pt"
-      id="productPrice" [ngClass]="{'uk-form-danger': (!form.controls['price'].valid && !form.controls['price']) }">
-    </p-inputNumber>
-  </div>
-  <div class="card flex justify-content">
-    <p-button icon="pi pi-check" label="Salvar" (click)="save()" *ngIf="!busy"></p-button>
-  </div>
-  <div class="card flex justify-content">
-    <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-danger"></p-button>
-  </div>
-</div>
+<app-produc-registration-page></app-produc-registration-page>
 <div class="card">
-  <ng-template pTemplate="caption">
-    <div class="table-header">
-      Lista de Produtos
-    </div>
-  </ng-template>
-  <p-table #dt [value]="product" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
-    [tableStyle]="{ 'min-width': '50rem' }"
+  <p-table [value]="product" dataKey="_id" editMode="row" [tableStyle]="{'min-width': '50rem'}" [paginator]="true"
+    [rows]="10" [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} produtos"
-    [rowsPerPageOptions]="[5, 10, 15, 25, 50]" [tableStyle]="{'min-width': '50rem'}" styleClass="p-datatable-striped">
+    [rowsPerPageOptions]="[ 10, 15, 25, 50, 100, 150, 200]" [tableStyle]="{'min-width': '50rem'}"
+    styleClass="p-datatable-striped">
     <ng-template pTemplate="caption">
-      <div class="flex">
-        <span class="p-input-icon-left ml-auto">
+      <div class="flex flex-wrap">
+        <span class="p-input-icon-left">
           <i class="pi pi-search"></i>
-          <input pInputText type="text" [(ngModel)]="name" (ngModelChange)="search()" placeholder="Buscar" />
+          <input pInputText type="text" [(ngModel)]="searchQuery" (ngModelChange)="search()"
+            placeholder="Pesquisar produtos..." />
+          <p-button icon="pi pi-times" styleClass=" p-button-danger p-button-text" (onClick)="clearSearch()"
+            [disabled]="!searchQuery"></p-button>
         </span>
+        <div class="pl-8">
+          <button pButton type="button" label="Exportar para Excel" (click)="exportToExcel()"></button>
+        </div>
       </div>
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-        <th style="width:25%">Nome</th>
-        <th style="width:25%">Quantidade</th>
-        <th style="width:25%">Valor de compra</th>
-        <th style="width:20%">Valor de venda</th>
-        <th style="width:35%" colspan="3">Ações</th>
+        <th style="text-align: center">#</th>
+        <th style="text-align: center">Codigo</th>
+        <th style="text-align: center">Nome</th>
+        <th style="text-align: center">Quantidade em Estoque</th>
+        <th style="text-align: center">Valor de compra</th>
+        <th style="text-align: center">Valor de venda</th>
+        <th style="text-align: center">Ações</th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-product>
-      <tr>
-        <td>{{product.title}}</td>
-        <td>
-          <div
-            [ngClass]="{'outofstok': product.quantity === 0, 'lowstock': (product.quantity > 0 && product.quantity < 10),'instock': product.quantity > 10}">
-            {{product.quantity}}
-          </div>
+    <ng-template pTemplate="body" let-product let-editing="editing" let-ri="rowIndex">
+      <tr [pEditableRow]="product">
+        <td style="text-align: center">
+          {{ri+1}}
         </td>
-        <td>{{ product.purchasePrice | currency}}</td>
-        <td>{{ product.price | currency}}</td>
-        <td> <p-toast></p-toast>
-          <p-button icon="pi pi-cart-plus" styleClass="p-button-rounded p-button-success p-button-outlined"
-            (click)="addToCart(product)"></p-button>
+        <td style="text-align: center">
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <input pInputText type="text" [(ngModel)]="selectedProduct.codigo" readonly>
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{product.codigo}}
+            </ng-template>
+          </p-cellEditor>
         </td>
-        <td>
-          <p-toast></p-toast>
-          <p-button icon="pi pi-pencil" styleClass="p-button-rounded p-button-warning p-button-outlined"
-            (click)="getProductById(product._id)"></p-button>
+        <td style="text-align: center">
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <input pInputText type="text" [(ngModel)]="selectedProduct.title" required>
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{product.title}}
+            </ng-template>
+          </p-cellEditor>
         </td>
-        <td>
-          <p-button icon="pi pi-trash" styleClass="p-button-rounded p-button-danger p-button-outlined" [swal]="{
+        <td style="text-align: center">
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <input pInputText type="text" pKeyFilter="num" id="number"
+                onkeypress="return event.charCode >= 48 && event.charCode <= 57" [(ngModel)]="selectedProduct.quantity"
+                required>
+            </ng-template>
+            <ng-template pTemplate="output">
+              <div
+                [ngClass]="{'outofstock': product.quantity === 0, 'lowstock': (product.quantity != 0 && product.quantity <= 10),'instock': product.quantity > 10}">
+                {{product.quantity}}</div>
+            </ng-template>
+          </p-cellEditor>
+        </td>
+        <td style="text-align: center">
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <p-inputNumber pKeyFilter="num" inputId="currency-user" mode="currency" currency="BRL" locale="pt"
+                [(ngModel)]="selectedProduct.purchasePrice"></p-inputNumber>
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{product.purchasePrice | currency}}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+        <td style="text-align: center">
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <p-inputNumber pKeyFilter="num" id="number" inputId="currency-user" mode="currency" currency="BRL"
+                locale="pt" [(ngModel)]="selectedProduct.price"></p-inputNumber>
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{product.price | currency}}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+        <td style="text-align: center">
+          <div class="flex align-items-center justify-content-center gap-3">
+            <p-button *ngIf="!editing" icon="pi pi-cart-plus"
+              styleClass="p-button-rounded p-button-success p-button-outlined" (click)="addToCart(product)">
+            </p-button>
+            <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+              (click)="onRowEditInit(product)" class="p-button-rounded p-button-warning p-button-outlined">
+            </button>
+            <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+              (click)="onRowEditSave(product)" class="p-button-rounded p-button-text p-button-success mr-2">
+            </button>
+            <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+              (click)="onRowEditCancel(product)" class="p-button-rounded p-button-text p-button-danger">
+            </button>
+            <p-button *ngIf="!editing" icon="pi pi-trash"
+              styleClass="p-button-rounded p-button-danger p-button-outlined" [swal]="{
             title: 'atenção',
             background: '#737373',
             width: 300,
@@ -91,9 +117,11 @@
             confirmButtonText: 'Sim',
             icon: 'warning'
         }" (confirm)="delete(product._id)"></p-button>
+          </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
   <h5 class="uk-text-center" *ngIf="product.length == 0">Não há Produtos Cadastrados</h5>
+
 </div>

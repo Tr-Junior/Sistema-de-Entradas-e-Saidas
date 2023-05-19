@@ -15,7 +15,7 @@ exports.get = async (req, res, next) => {
         res.status(200).send(data);
     } catch (e) {
         res.status(500).send({
-            message: 'falha ao processar a requisição'
+            message: 'Falha ao processar a requisição'
         });
     }
 }
@@ -24,6 +24,17 @@ exports.get = async (req, res, next) => {
 exports.getById = async (req, res, next) => {
     try {
         var data = await repository.getById(req.params.id);
+        res.status(200).send(data);
+    } catch (e) {
+        res.status(500).send({
+            message: 'Falha ao processar a requisição'
+        });
+    }
+}
+
+exports.getByTitle = async (req, res, next) => {
+    try {
+        const data = await repository.getByTitle(req.params.description);
         res.status(200).send(data);
     } catch (e) {
         res.status(500).send({
@@ -36,8 +47,8 @@ exports.post = async (req, res, next) => {
 
     let contract = new ValidationContract();
     contract.hasMinLen(req.body.description, 3, 'O título deve ser pelo menos 3 caracteres');
-    // contract.hasMinLen(req.body.slug, 3, 'O slug deve ser pelo menos 3 caracteres');
-    // contract.hasMinLen(req.body.description, 3, 'A description deve ser pelo menos 3 caracteres');
+    contract.hasMinLen(req.body.value, 1, 'valor de ser informado');
+    contract.hasMinLen(req.body.date, 3, 'a Data é requerida');
 
     if (!contract.isValid()) {
         res.status(400).send(contract.errors()).end();
@@ -55,18 +66,18 @@ exports.post = async (req, res, next) => {
     } catch (e) {
         console.log(e);
         res.status(500).send({
-            message: 'falha ao processar a requisição'
+            message: 'Falha ao processar a requisição'
         });
     }
 };
 
 exports.put = async (req, res, next) => {
     try {
-        await repository.update(req.params.id, req.body);
+        await repository.update(req.body.id, req.body);
         res.status(200).send({ message: 'Saída atualizada!' });
     } catch (e) {
         res.status(500).send({
-            message: 'falha ao processar a requisição'
+            message: 'Falha ao processar a requisição'
         });
     }
 }
@@ -79,7 +90,7 @@ exports.delete = async (req, res, next) => {
         });
     } catch (e) {
         res.status(500).send({
-            message: 'falha ao processar a requisição'
+            message: 'Falha ao processar a requisição'
         });
     }
 }

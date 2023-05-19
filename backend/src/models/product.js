@@ -27,6 +27,7 @@ const schema = new Schema({
     },
     price: {
         type: Number,
+        trim: true,
         required: true,
     },
 });

@@ -22,7 +22,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { DataService } from './services/data.service';
 import { CURRENCY_MASK_CONFIG, CurrencyMaskConfig, CurrencyMaskModule } from 'ng2-currency-mask';
 import { LoadingComponent } from './components/shared/loading/loading.component';
-import { ProductCardComponent } from './components/store/product-card/product-card.component';
 import { registerLocaleData, DatePipe } from '@angular/common';
 import { ToastrModule } from 'ngx-toastr';
 import { ProducRegistrationPageComponent } from './pages/store/produc-registration-page/produc-registration-page.component';
@@ -43,6 +42,11 @@ import { PasswordModule } from 'primeng/password';
 import { DropdownModule } from 'primeng/dropdown';
 import { MessagesModule } from 'primeng/messages';
 import { AuthService } from './services/auth.service';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { ChartModule } from 'primeng/chart';
+import { DetailsChartPageComponent } from './components/details-chart-page/details-chart-page.component';
+import { PasswordChangePageComponent } from './pages/account/password-change-page/password-change-page.component';
+import { CurrencyPipe } from '@angular/common';
 
 registerLocaleData(ptBR);
 
@@ -71,8 +75,10 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     FramePageComponent,
     LoadingComponent,
     DetailsPageComponent,
-    ProductCardComponent,
-    ProducRegistrationPageComponent
+    ProducRegistrationPageComponent,
+    DetailsPageComponent,
+    DetailsChartPageComponent,
+    PasswordChangePageComponent
 
   ],
   imports: [
@@ -101,6 +107,9 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     PasswordModule,
     DropdownModule,
     MessagesModule,
+    SplitButtonModule,
+    ChartModule,
+    CurrencyPipe,
     MenubarModule
   ],
   providers: [DataService, AuthService, ConfirmationService, MessageService, DatePipe,

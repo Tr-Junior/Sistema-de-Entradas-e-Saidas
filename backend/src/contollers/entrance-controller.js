@@ -12,7 +12,7 @@ exports.get = async (req, res, next) => {
         res.status(200).send(data);
     } catch (e) {
         res.status(500).send({
-            message: 'falha ao processar a requisição'
+            message: 'Falha ao processar a requisição'
         });
     }
 }
@@ -25,7 +25,7 @@ exports.delete = async (req, res, next) => {
         });
     } catch (e) {
         res.status(500).send({
-            message: 'falha ao processar a requisição'
+            message: 'Falha ao processar a requisição'
         });
     }
 }
@@ -38,27 +38,7 @@ exports.deleteByCode = async (req, res, next) => {
         });
     } catch (e) {
         res.status(500).send({
-            message: 'falha ao processar a requisição'
+            message: 'Falha ao processar a requisição'
         });
     }
 }
-// exports.post = async (req, res, next) => {
-//     try {
-
-//         // const token = req.body.token || req.query.token || req.headers['x-access-token'];
-
-//         // const data = await authService.decodeToken(token);
-
-//         await repository.create({
-
-//         });
-
-//         res.status(201).send({
-//             message: 'pedido adicionado adicionado'
-//         });
-//     } catch (e) {
-//         res.status(500).send({
-//             message: 'falha ao processar a requisição'
-//         });
-//     }
-// };

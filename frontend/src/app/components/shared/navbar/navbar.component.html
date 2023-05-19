@@ -1,18 +1,20 @@
 <div class="card">
   <p-menubar>
     <ng-template pTemplate="start">
-      <img src="https://primefaces.org/cdn/primeng/images/primeng.svg" height="40" class="mr-2" />
-      <p-button [routerLink]="['/store']" icon="pi pi-list" label="Lista de Produtos"
+      <img src="assets/image/logo.png" height="40" class="mr-2" />
+      <p-button label="{{ user.name }}" styleClass="p-button-link text-2xl"></p-button>
+      <p-button [routerLink]=" ['/store']" icon="pi pi-list" label="Lista de Produtos"
         styleClass=" p-button-text"></p-button>
       <p-button [routerLink]="['/sale']" icon="pi pi-cart-plus" label="Caixa" styleClass=" p-button-text"></p-button>
-      <p-button [routerLink]="['/features']" icon="pi pi-shopping-cart" label="Vendas"
+      <p-button [routerLink]="['/features/sales']" icon="pi pi-shopping-cart" label="Vendas"
         styleClass=" p-button-text"></p-button>
       <p-button [routerLink]="['/features/entranceAndExit']" icon="pi pi-chart-line" label="Faturamento"
         styleClass=" p-button-text"></p-button>
-      <p-button [routerLink]="['/account']" icon="pi pi-user-plus" label="Cadastro de usuário"
+      <p-button [routerLink]="['/account/new-user']" icon="pi pi-user-plus" label="Cadastro de usuário"
+        styleClass=" p-button-text"></p-button>
+      <p-button [routerLink]="['/account/passwordChage']" icon="pi pi-user-plus" label="Alterar senha"
         styleClass=" p-button-text"></p-button>
     </ng-template>
-
     <p-button icon="pi pi-sign-out" label="Sair" styleClass="p-button-rounded p-button-text"
       (click)="logout()"></p-button>
   </p-menubar>

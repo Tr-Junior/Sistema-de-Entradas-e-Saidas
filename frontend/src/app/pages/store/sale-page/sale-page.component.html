@@ -5,101 +5,152 @@
         <p-button icon="pi pi-times" label="Limpar Carrinho" styleClass="p-button-rounded p-button-danger p-button-text"
           (click)="clear()"></p-button>
       </div>
-      <p-table [value]="cartItems" styleClass="p-datatable-striped" [tableStyle]="{'min-width': '50rem'}">
+      <div class="card">
+        <span class="p-input-icon-left ml-auto">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" [(ngModel)]="searchQuery" (ngModelChange)="search()"
+            placeholder="Pesquisar produtos..." />
+          <p-button icon="pi pi-times" styleClass=" p-button-danger p-button-text" (onClick)="clearSearch()"
+            [disabled]="!searchQuery"></p-button>
+        </span>
+      </div>
+      <p-table [value]="product" styleClass="p-datatable-striped" [tableStyle]="{'min-width': '50rem'}">
         <ng-template pTemplate="header">
           <tr>
-            <th>Produto</th>
-            <th>Quantidade</th>
-            <th>Desconto</th>
-            <th>Valor unitário</th>
-            <th>Valor Total</th>
-            <th>Valor total com desconto</th>
+            <th>Codigo</th>
+            <th>Name</th>
+            <th>Estoque</th>
+            <th>Valor</th>
             <th>Ação</th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-item let-index=i>
+        <ng-template pTemplate="body" let-product>
           <tr>
-            <td>{{item.title}}</td>
+            <td>{{product.codigo}}</td>
+            <td>{{product.title}}</td>
             <td>
-              <p-inputNumber [showButtons]="true" buttonLayout="horizontal" inputId="horizontal"
-                spinnerMode="horizontal" [step]="1" decrementButtonClass="p-button-danger"
-                incrementButtonClass="p-button-success " incrementButtonIcon="pi pi-plus"
-                decrementButtonIcon="pi pi-minus" [(ngModel)]="item.quantity"
-                (click)="updateItem(item)"></p-inputNumber>
+              <div
+                [ngClass]="{'outofstock': product.quantity === 0, 'lowstock': (product.quantity != 0 && product.quantity <= 10),'instock': product.quantity > 10}">
+                {{product.quantity}}</div>
             </td>
-            <td>
-              <p-inputNumber styleClass="width: 4rem" [(ngModel)]="item.discount" (onBlur)="updateItem(item)"
-                inputId="percent" prefix="%" value="0">
-              </p-inputNumber>
-            </td>
-            <td>{{item.price | currency}}</td>
-            <td>{{(item.price * item.quantity) | currency}}</td>
-            <td>{{(item.totalWithDiscount) | currency}}</td>
-            <td>
-              <div class="flex justify-content-end flex-wrap gap-3 mb-4">
-                <p-button icon="pi pi-trash" styleClass="p-button-rounded p-button-danger p-button-text"
-                  (click)="remove(item)"></p-button>
-              </div>
+            <td>{{product.price | currency}}</td>
+            <td><p-button icon="pi pi-cart-plus" styleClass="p-button-rounded p-button-success p-button-outlined"
+                (click)="addToCart(product)"></p-button>
             </td>
           </tr>
         </ng-template>
       </p-table>
     </div>
+    <p-table [value]="cartItems" styleClass="p-datatable-striped" [tableStyle]="{'min-width': '50rem'}">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="text-align: center">Produto</th>
+          <th style="text-align: center">Quantidade</th>
+          <th style="text-align: center">Desconto</th>
+          <th style="text-align: center">Valor unitário</th>
+          <th style="text-align: center">Valor Total</th>
+          <th style="text-align: center">Valor total com desconto</th>
+          <th style="text-align: center">Ação</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item let-index=i>
+        <tr>
+          <td style="text-align: center">{{item.title}}</td>
+          <td style="text-align: center">
+            <div class="flex-initial flex align-items-center justify-content-center">
+              <p-button icon="pi pi-minus" styleClass="p-button-rounded p-button-danger p-button-text"
+                (click)="decreaseItemQuantity(item._id)"></p-button>
+              <span>{{item.quantity}}</span>
+              <p-button icon="pi pi-plus" styleClass="p-button-rounded p-button-success p-button-text"
+                (mousedown)="startIncreasing(item._id)" (mouseup)="stopIncreasing()"></p-button>
+            </div>
+          </td>
+          <td style="text-align: center">
+            <p-inputNumber styleClass="width: 4rem" [(ngModel)]="item.discount"
+              (onInput)="saveItemDiscount(item._id, item.discount || 0)" inputId=" percent" prefix="%" [size]="6"
+              ariaLabel="0" value="0">
+            </p-inputNumber>
+          </td>
+          <td style="text-align: center">
+            {{item.price | currency}}
+          </td>
+          <td style="text-align: center">
+            {{(item.price * item.quantity) | currency}}
+          </td>
+          <td style="text-align: center">
+            <div>{{item.totalWithDiscount | currency}}</div>
+          </td>
+          <td style="text-align: center">
+            <p-button icon=" pi pi-trash" styleClass="p-button-rounded p-button-danger p-button-text"
+              (click)="remove(item)"></p-button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
   </div>
-  <div class="p-col-12" *ngIf="cartItems.length === 0">
-    <div class="">
-      <br>
-      <p class="text-center text-2xl text-red-700"><em>Seu carrinho está vazio</em></p>
-      <br>
-      <br>
-      <br>
+</div>
+<div class="p-col-12" *ngIf="cartItems.length === 0">
+  <div class="">
+    <br>
+    <p class="text-center text-2xl text-red-700"><em>Seu carrinho está vazio</em></p>
+    <br>
+    <br>
+    <br>
+  </div>
+</div>
+<div class="card ">
+  <div class="flex justify-content-between align-items-center flex-wrap card-container">
+    <div class="flex-initial align-items-end flex  m-1 px-5 py-3 ">
+      <div class="gap-3 pr-8" style=" display: flex; flex-direction: column;">
+        <span class="text-center text-xl ">Forma de Pagamento</span>
+        <p-dropdown styleClass="ng-dirty ng-invalid mr-2" placeholder="Selecione" [options]="formPaymentOptions"
+          [(ngModel)]="selectedPayment" optionLabel="label" optionValue="value"
+          (onChange)="onFormPaymentSelected($event.value)">
+        </p-dropdown>
+      </div>
+      <div class="gap-3" style=" display: flex; flex-direction: column;">
+        <span class="text-xl ">Desconto</span>
+        <p-inputNumber [(ngModel)]="generalDiscount" [size]="9" (onInput)="updateGeneralDiscount(generalDiscount)"
+          placeholder=" Discount" styleClass="width: 4rem " inputId="percent" prefix="%" value="0">
+        </p-inputNumber>
+      </div>
+    </div>
+    <div class="flex  m-1 px-5 align-items-center card-container justify-content-end">
+      <div class="text-white-900 font-bold text-xl">Subtotal: {{ subtotal | currency }}</div>
+      <div class="gap-3 pl-6" style="flex-direction: column;">
+        <span class="text-xl  block mb-2">Valor Total:</span>
+        <div class="flex align-items-center">
+          <p-inputNumber styleClass="" [(ngModel)]="grandTotal" placeholder="Valor Total" mode="currency"
+            currency="BRL"></p-inputNumber>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="card w-screen">
-    <div class="flex justify-content-between align-items-center flex-wrap card-container">
-      <div class="flex-initial align-items-end flex  m-1 px-5 py-3 ">
-        <div class="gap-3 pr-8" style=" display: flex; flex-direction: column;">
-          <span class="text-center text-xl ">Forma de Pagamento</span>
-          <p-dropdown placeholder="Selecione" [options]="formPaymentOptions" [(ngModel)]="selectedPayment"
-            optionLabel="label" optionValue="value" (onChange)="onFormPaymentSelected($event.value)" [required]="true"
-            severity="error">
-          </p-dropdown>
-        </div>
-        <div class="gap-3" style=" display: flex; flex-direction: column;">
-          <span class="text-xl ">Desconto</span>
-          <p-inputNumber [(ngModel)]="generalDiscount" (onBlur)="updateGeneralDiscount(generalDiscount)"
-            placeholder=" Discount" styleClass="width: 4rem " inputId="percent" prefix="%" value="0">
+  <div class="flex align-content-end  flex-wrap ">
+    <div class=" m-1 px-5 align-items-end card-container justify-content-end pr-6">
+      <div class="gap-3" style=" display: flex; flex-direction: column;">
+        <span class="text-xl  block mb-2">Valor recebido:</span>
+        <div class="flex align-items-center">
+          <p-inputNumber styleClass="pr-4" id=" productQuantity" inputId="integeronly" [(ngModel)]="total"
+            (onInput)="calcTroco()" mode="currency" currency="BRL">
           </p-inputNumber>
-        </div>
-      </div>
-      <div class="flex m-2">
-        <div class="flex justify-content-end h-6rem column-gap-4 m-2 px-5 py-3">
-          <p-messages severity="success">
-            <ng-template pTemplate>
-              Subtotal: {{ subtotal | currency }}
-            </ng-template>
-          </p-messages>
-          <p-messages severity="success">
-            <ng-template pTemplate>
-              Valor Total: {{ grandTotal | currency }}
-            </ng-template>
-          </p-messages>
+          <div class="text-white-900 font-bold text-lg"> Valor Do Troco: {{
+            totalTroco | currency }}
+          </div>
         </div>
       </div>
     </div>
-    <div class="flex">
-      <div class="flex-initial flex align-items-center justify-content-center m-2 px-5 py-3">
-        <p-button pButton pRipple class="" [swal]="{
-          title: 'atenção',
-          background: '#737373',
-          width: 300,
-          color:'#fff',
-          text: 'Deseja Finalizar a Venda ?',
-          showDenyButton: true,
-          denyButtonText: 'Não',
-          confirmButtonText: 'Sim',
-          icon: 'warning'
-      }" (confirm)="submitOrder()">Finalizar Venda</p-button>
-      </div>
+    <div class="flex align-items-end justify-content-end m-1 px-5">
+      <p-button icon="pi pi-check" iconPos="right" label="Finalizar Venda" pRipple class="" [swal]="{
+        title: 'atenção',
+        background: '#737373',
+        width: 300,
+        color:'#fff',
+        text: 'Deseja Finalizar a Venda ?',
+        showDenyButton: true,
+        denyButtonText: 'Não',
+        confirmButtonText: 'Sim',
+        icon: 'warning'
+    }" (confirm)="submitOrder()"></p-button>
     </div>
   </div>

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { MessageService } from 'primeng/api';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
 import { Entrances } from 'src/app/models/entrances.model';
 import { Exits } from 'src/app/models/exits.model';
 import { Product } from 'src/app/models/product.model';
@@ -21,32 +21,41 @@ export class InvoicingPageComponent {
   public name: any;
   public startDate: any;
   public endDate: any;
-
+  public ptBR: any;
 
   constructor(
     private service: DataService,
     private messageService: MessageService,
-    private router: Router,
-    private fb: FormBuilder,
+    private primengConfig: PrimeNGConfig,
     private toastr: ToastrService
   ) {
-
+    this.ptBR = {
+      firstDayOfWeek: 0,
+      dayNames: ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
+      dayNamesShort: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+      dayNamesMin: ["Do", "Se", "Te", "Qu", "Qu", "Se", "Sa"],
+      monthNames: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+      monthNamesShort: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
+      today: 'Hoje',
+      clear: 'Limpar'
+    };
   }
 
   ngOnInit() {
     this.listEntrances();
+    this.primengConfig.setTranslation(this.ptBR);
   };
 
 
   searchDate() {
     if (this.startDate && this.endDate) {
-      this.getExitsByDateRange(this.startDate, this.endDate);
+      this.getEntrancesByDateRange(this.startDate, this.endDate);
     } else {
       this.listEntrances();
     }
   }
 
-  getExitsByDateRange(startDate: string, endDate: string) {
+  getEntrancesByDateRange(startDate: string, endDate: string) {
     this.busy = true;
     this.service.getEntrances().subscribe(
       (data: any) => {
@@ -71,18 +80,6 @@ export class InvoicingPageComponent {
       });
     });
   }
-
-  // listEntrances() {
-  //   this
-  //     .service
-  //     .getEntrances()
-  //     .subscribe(
-  //       (data: any) => {
-  //         this.busy = false;
-  //         this.entrances = data;
-  //       })
-  // }
-
 
   getEntrancesById(id: any) {
     this
@@ -139,5 +136,12 @@ export class InvoicingPageComponent {
       })
     }
   }
+
+  clearSearch() {
+    this.startDate = null;
+    this.endDate = null;
+    this.listEntrances();
+  }
+
 
 }

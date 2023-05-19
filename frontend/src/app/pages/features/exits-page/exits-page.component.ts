@@ -24,6 +24,10 @@ export class ExitsPageComponent {
   public filteredExits: Exits[] = [];
   public startDate: any;
   public endDate: any;
+  public searchQuery: string = '';
+  public clonedProducts: { [s: string]: Exits } = {};
+  public selectedExits!: Exits;
+  public updating: boolean = false;
 
   constructor(
     private primengConfig: PrimeNGConfig,
@@ -82,6 +86,7 @@ export class ExitsPageComponent {
         },
         error: (err: any) => {
           console.log(err);
+          this.toastr.error(err.message, 'Erro ao cadastrar saída');
           this.busy = false;
         }
       }
@@ -112,18 +117,6 @@ export class ExitsPageComponent {
     );
   }
 
-
-  // listExits() {
-  //   this
-  //     .service
-  //     .getExits()
-  //     .subscribe(
-  //       (data: any) => {
-  //         this.busy = false;
-  //         this.exits = data;
-  //       })
-  // }
-
   listExits() {
     this.service.getExits().subscribe((data: any) => {
       this.busy = false;
@@ -150,24 +143,41 @@ export class ExitsPageComponent {
 
   }
 
-  update() {
-    this.busy = true;
-    this
-      .service
-      .updateExits(this.exitId, this.form.value)
-      .subscribe({
-        next: (data: any) => {
-          this.busy = false;
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Produto atualizado' });
-          this.listExits();
-          console.log(this.form.value);
-        },
-        error: (err: any) => {
-          console.log(err);
-          this.busy = false;
-        }
+  onRowEditInit(exits: Exits) {
+    if (exits) {
+      {
+        this.selectedExits = { ...exits };
+        this.form.controls['title'].setValue(exits.description);
+        this.form.controls['quantity'].setValue(exits.value);
+        this.form.controls['purchasePrice'].setValue(exits.date)
+      };
+    }
+  }
+
+
+  onRowEditSave(exits: Exits) {
+    this.updating = false;
+    const index = this.exits.findIndex(p => p._id === exits._id);
+    const updatedExits = { id: exits._id, ...this.selectedExits };
+    this.service.updateExits(updatedExits).subscribe({
+      next: (data: any) => {
+        this.exits[index] = data.exits;
+        this.toastr.success(data.message, 'Saída atualizada atualizado');
+        this.listExits();
+        this.updating = true;
+      },
+      error: (err: any) => {
+        console.log(err);
+        this.toastr.error(err.message, 'Erro ao atualizar saída');
       }
-      );
+    });
+  }
+
+  onRowEditCancel(exits: Exits) {
+    const index = this.exits.findIndex(p => p._id === exits._id);
+    this.exits[index] = this.selectedExits;
+    this.selectedExits;
+    this.listExits();
   }
 
   delete(id: any) {
@@ -177,13 +187,12 @@ export class ExitsPageComponent {
       .subscribe(
         (data: any) => {
           this.busy = false;
-          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Produto deletado' });
+          this.toastr.success(data.message, 'Saída deletada com sucesso');
           this.listExits();
           console.log(data);
         },
         (err: any) => {
-          this.toastr.error(err.message);
-          this.messageService.add({ severity: 'warn', summary: 'Cancelled', detail: 'You have cancelled' });
+          this.toastr.error(err.message, 'Erro ao deletar saída');
           this.busy = false;
           console.log(err);
         }
@@ -201,15 +210,10 @@ export class ExitsPageComponent {
     }
   }
 
-  save() {
-    if (this.exitId == null) {
-      this.submit();
-      this.listExits();
 
-    }
-    else {
-      this.update();
-    }
-
+  clearSearch() {
+    this.startDate = null;
+    this.endDate = null;
+    this.listExits();
   }
 }

@@ -4,112 +4,130 @@ import { Product } from "../models/product.model";
 import { Observable } from "rxjs";
 import { Order } from "../models/order.models";
 import { Security } from "../utils/Security.util";
+import { Exits } from "../models/exits.model";
+import { Entrances } from "../models/entrances.model";
+import { User } from "../models/user.model";
+import { environment } from "src/environments/environment.development";
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
 
-  public url = 'http://localhost:3001'
+  // public API = `${environment.API}`;
+  public API = 'http://wrconexao.kinghost.net:21048';
 
   constructor(private http: HttpClient) { }
 
   public composeHeaders() {
-    const token: any = Security.getToken();
+    const token = Security.getToken();
     const headers = new HttpHeaders().set('x-access-token', token);
     return headers;
 
   }
 
   // Produtos
-  getProducts() {
-    return this.http.get<Product[]>(`${this.url}/products`);
-  }
-  createProduct(data: any) {
-    return this.http.post(`${this.url}/products`, data);
+  searchProduct(name: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.API}/products/search/` + name, { headers: this.composeHeaders() });
   }
   getProduct(): Observable<any> {
-    return this.http.get<Product[]>(`${this.url}/products`);
+    return this.http.get<Product[]>(`${this.API}/products`, { headers: this.composeHeaders() });
   }
   getProductById(id: any): Observable<any> {
-    return this.http.get(`${this.url}/products/getById/` + id);
+    return this.http.get(`${this.API}/products/getById/` + id, { headers: this.composeHeaders() });
   }
-  updateProduct(id: any, data: any): Observable<any> {
-    return this.http.put(`${this.url}/products/update/` + id, data);
+  getProducts() {
+    return this.http.get<Product[]>(`${this.API}/products`, { headers: this.composeHeaders() });
+  }
+  createProduct(data: any) {
+    return this.http.post(`${this.API}/products`, data, { headers: this.composeHeaders() });
+  }
+
+  updateProduct(data: any): Observable<any> {
+    return this.http.put(`${this.API}/products/updateBody`, data, { headers: this.composeHeaders() });
   }
   delProd(id: any): Observable<any> {
-    return this.http.delete(`${this.url}/products/` + id)
+    return this.http.delete(`${this.API}/products/` + id, { headers: this.composeHeaders() })
   }
 
   // Saidas
 
   createExits(data: any) {
-    return this.http.post(`${this.url}/exits`, data);
+    return this.http.post(`${this.API}/exits`, data, { headers: this.composeHeaders() });
+  }
+  searchExits(description: string): Observable<Exits[]> {
+    return this.http.get<Exits[]>(`${this.API}/exits/search/` + description, { headers: this.composeHeaders() });
   }
   getExits(): Observable<any> {
-    return this.http.get<Product[]>(`${this.url}/exits`);
+    return this.http.get<Exits[]>(`${this.API}/exits`, { headers: this.composeHeaders() });
   }
   getExitsById(id: any): Observable<any> {
-    return this.http.get(`${this.url}/exits/getById/` + id);
+    return this.http.get(`${this.API}/exits/getById/` + id, { headers: this.composeHeaders() });
   }
-  updateExits(id: any, data: any): Observable<any> {
-    return this.http.put(`${this.url}/exits/update/` + id, data);
+  updateExits(data: any): Observable<any> {
+    return this.http.put(`${this.API}/exits/update`, data, { headers: this.composeHeaders() });
   }
   delExits(id: any): Observable<any> {
-    return this.http.delete(`${this.url}/exits/` + id);
+    return this.http.delete(`${this.API}/exits/` + id, { headers: this.composeHeaders() });
   }
 
   // Entradas
 
   getEntrances(): Observable<any> {
-    return this.http.get<Product[]>(`${this.url}/entrance`);
+    return this.http.get<Entrances[]>(`${this.API}/entrance`, { headers: this.composeHeaders() });
   }
   getEntrancesById(id: any): Observable<any> {
-    return this.http.get(`${this.url}/entrance/getById/` + id);
+    return this.http.get(`${this.API}/entrance/getById/` + id, { headers: this.composeHeaders() });
   }
   delEntrances(id: any): Observable<any> {
-    return this.http.delete(`${this.url}/entrance/` + id);
+    return this.http.delete(`${this.API}/entrance/` + id, { headers: this.composeHeaders() });
   }
   delEntrancesByCode(code: any): Observable<any> {
-    return this.http.delete(`${this.url}/entrance/deleteByCode/` + code);
+    return this.http.delete(`${this.API}/entrance/deleteByCode/` + code, { headers: this.composeHeaders() });
   }
   // Carrinho de compras
 
   createOrder(data: any) {
-    return this.http.post(`${this.url}/orders`, data);
+    return this.http.post(`${this.API}/orders`, data, { headers: this.composeHeaders() });
   }
-
   getOrder(): Observable<any> {
-    return this.http.get<Order[]>(`${this.url}/orders`);
+    return this.http.get<Order[]>(`${this.API}/orders`, { headers: this.composeHeaders() });
   }
   getOrderById(id: any): Observable<any> {
-    return this.http.get(`${this.url}/orders/getById/` + id);
+    return this.http.get(`${this.API}/orders/getById/` + id, { headers: this.composeHeaders() });
   }
   delOrder(id: any): Observable<any> {
-    return this.http.delete(`${this.url}/orders/` + id);
+    return this.http.delete(`${this.API}/orders/` + id, { headers: this.composeHeaders() });
   }
   delOrderByCode(code: any): Observable<any> {
-    return this.http.delete(`${this.url}/orders/deleteByCode/` + code);
+    return this.http.delete(`${this.API}/orders/deleteByCode/` + code, { headers: this.composeHeaders() });
   }
 
 
   //Autenticação
 
-  resetPassword(data: any) {
-    return this.http.post(`${this.url}/accounts/reset-password`, data);
-  }
+
   authenticate(data: any) {
-    return this.http.post(`${this.url}/customers/authenticate`, data);
+    return this.http.post(`${this.API}/customers/authenticate`, data);
   }
   refreshToken() {
-    return this.http.post(`${this.url}/accounts/refresh-token`, null, { headers: this.composeHeaders() });
+    return this.http.post(`${this.API}/customers/refresh-token`, null, { headers: this.composeHeaders() });
   }
-  getProfile() {
-    return this.http.get(`${this.url}/accounts`, { headers: this.composeHeaders() });
 
-  }
-  updateProfile(data: any) {
-    return this.http.post(`${this.url}/accounts`, { headers: this.composeHeaders() });
 
+  //Usuario
+
+  createUser(data: any) {
+    return this.http.post(`${this.API}/customers`, data, { headers: this.composeHeaders() });
   }
+  getUserById(id: any): Observable<any> {
+    return this.http.get<User[]>(`${this.API}/customers/getById/${id}`, { headers: this.composeHeaders() });
+  }
+  updatePassword(data: any): Observable<any> {
+    return this.http.put(`${this.API}/customers/update-password`, data, { headers: this.composeHeaders() });
+  }
+  checkUsernameExists(name: string) {
+    return this.http.get<boolean>(`${this.API}/customers/check-username/${name}`, { headers: this.composeHeaders() });
+  }
+
 }

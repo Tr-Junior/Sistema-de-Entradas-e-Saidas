@@ -10,6 +10,9 @@ import { CustomValidator } from 'src/app/validators/custom.validator';
 import { ConfirmationService, MessageService, ConfirmEventType } from 'primeng/api';
 import { CartUtil } from 'src/app/utils/cart-util';
 import { CartItem } from 'src/app/models/cart-item.model';
+import { Security } from 'src/app/utils/Security.util';
+import { User } from 'src/app/models/user.model';
+import * as XLSX from 'xlsx';
 
 
 @Component({
@@ -18,17 +21,24 @@ import { CartItem } from 'src/app/models/cart-item.model';
   styleUrls: ['./products-page.component.css']
 })
 export class ProductsPageComponent implements OnInit {
-  @Input() products!: Product;
 
-  public product: Product[] = [];
+  public products$!: Observable<Product[]>;
   public form: FormGroup;
   public busy = false;
+  id: any;
+  date?: Date;
+  user!: User;
   prodId = "";
   name: any;
+  @Input() products!: Product;
+  product: Product[] = [];
+  clonedProducts: { [s: string]: Product } = {};
+  public selectedProduct!: Product;
+  public updating: boolean = false;
+  public searchQuery: string = '';
 
 
   constructor(
-    private confirmationService: ConfirmationService,
     private messageService: MessageService,
     private data: DataService,
     private service: DataService,
@@ -53,8 +63,141 @@ export class ProductsPageComponent implements OnInit {
     });
   }
 
+
   ngOnInit() {
     this.listProd();
+    this.user = Security.getUser();
+  }
+
+  resetForm() {
+    this.form.reset();
+  }
+
+  listProd() {
+    this
+      .service
+      .getProduct()
+      .subscribe(
+        (data: any) => {
+          this.busy = false;
+          this.product = data;
+        })
+  }
+
+  refresh(): void {
+    window.location.reload();
+  }
+
+
+  submit() {
+    this.busy = true;
+    this
+      .service
+      .createProduct(this.form.value)
+      .subscribe({
+        next: (data: any) => {
+          this.busy = false;
+          this.toastr.success(data.message, 'Produto cadastrado');
+          this.resetForm();
+        },
+        error: (err: any) => {
+          this.toastr.error(err.message);
+          this.busy = false;
+        }
+      }
+
+      );
+  }
+
+  delete(id: any) {
+    this
+      .service
+      .delProd(id)
+      .subscribe(
+        (data: any) => {
+          this.busy = false;
+          this.toastr.success(data.message);
+          this.listProd();
+          console.log(data);
+        },
+        (err: any) => {
+          this.toastr.error(err.message);
+          this.busy = false;
+          console.log(err);
+        }
+
+      );
+  }
+
+  onRowEditInit(product: Product) {
+    this.selectedProduct = { ...product };
+    this.form.controls['title'].setValue(product.title);
+    this.form.controls['quantity'].setValue(product.quantity);
+    this.form.controls['purchasePrice'].setValue(product.purchasePrice);
+    this.form.controls['price'].setValue(product.price);
+  }
+
+
+  onRowEditSave(product: Product) {
+    this.updating = false;
+    const index = this.product.findIndex(p => p._id === product._id);
+    const updatedProduct = { id: product._id, ...this.selectedProduct };
+    this.service.updateProduct(updatedProduct).subscribe({
+      next: (data: any) => {
+        this.product[index] = data.product;
+        this.toastr.success(data.message, 'Produto atualizado');
+        if (this.searchQuery === '') {
+          this.listProd();
+        } else {
+          this.search();
+        }
+        this.updating = true;
+      },
+      error: (err: any) => {
+        console.log(err);
+        this.toastr.error(err.message, 'Erro');
+      }
+    });
+  }
+
+  onRowEditCancel(product: Product) {
+    const index = this.product.findIndex(p => p._id === product._id);
+    this.product[index] = this.selectedProduct;
+    this.selectedProduct;
+    if (this.searchQuery === '') {
+      this.listProd();
+    } else {
+      this.search();
+    }
+  }
+
+  search(): void {
+    if (!this.searchQuery) {
+      this.service.searchProduct(this.searchQuery).subscribe({
+        next: (data: any) => {
+          this.busy = false;
+          this.product = data;
+        },
+        error: (err: any) => {
+          console.log(err);
+          this.busy = false;
+        }
+      });
+      return;
+    }
+
+    this.busy = true;
+    this.service.searchProduct(this.searchQuery).subscribe({
+      next: (data: any) => {
+        this.busy = false;
+        this.product = data;
+      },
+      error: (err: any) => {
+        console.log(err);
+        this.busy = false;
+        this.toastr.error(err.message);
+      }
+    });
   }
 
 
@@ -96,124 +239,56 @@ export class ProductsPageComponent implements OnInit {
     }
   }
 
-  resetForm() {
-    this.form.reset();
-  }
-
-  listProd() {
-    this
-      .service
-      .getProduct()
-      .subscribe(
-        (data: any) => {
-          this.busy = false;
-          this.product = data;
-        })
-  }
-
-  getProductById(id: any) {
-    this
-      .service
-      .getProductById(id)
-      .subscribe(
-        (data: any) => {
-          this.busy = false;
-          this.prodId = data._id
-          this.form.patchValue(data);
-          console.log(data._id);
-        }
-      );
-
+  clearSearch() {
+    this.searchQuery = '';
+    this.listProd();
   }
 
 
-  refresh(): void {
-    window.location.reload();
-  }
+  exportToExcel() {
+    const data = this.product.map((product: any, index: number) => {
+      return {
+        '#': index + 1,
+        'Código': product.codigo,
+        'Nome': product.title,
+        'Quantidade em Estoque': product.quantity,
+        'Valor de Compra': product.purchasePrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        'Valor de Venda': product.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      };
+    });
 
-  save() {
-    if (this.prodId == '') {
-      this.submit();
-    }
-    else {
-      this.update();
-    }
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
 
-  }
+    // Definir a largura das colunas
+    const columnWidths = [
+      { wch: 5 },  // Largura da coluna '#'
+      { wch: 25 }, // Largura da coluna 'Código'
+      { wch: 35 }, // Largura da coluna 'Nome'
+      { wch: 20 }, // Largura da coluna 'Quantidade em Estoque'
+      { wch: 20 }, // Largura da coluna 'Valor de Compra'
+      { wch: 20 }  // Largura da coluna 'Valor de Venda'
+    ];
 
-  submit() {
-    this.busy = true;
-    this
-      .service
-      .createProduct(this.form.value)
-      .subscribe({
-        next: (data: any) => {
-          this.busy = false;
-          this.toastr.success(data.message);
-          this.resetForm();
-          this.listProd();
-          console.log();
-        },
-        error: (err: any) => {
-          console.log(err);
-          this.busy = false;
-        }
-      }
+    // Definir a largura das colunas no objeto 'worksheet'
+    worksheet['!cols'] = columnWidths;
 
-      );
-  }
-
-  update() {
-    this.busy = true;
-    this
-      .service
-      .updateProduct(this.prodId, this.form.value)
-      .subscribe({
-        next: (data: any) => {
-          this.busy = false;
-          this.toastr.success(data.message, 'Atualizado');
-          this.resetForm();
-          this.listProd();
-          console.log(this.form.value);
-        },
-        error: (err: any) => {
-          console.log(err);
-          this.busy = false;
-        }
-      }
-      );
-  }
-
-  delete(id: any) {
-    this
-      .service
-      .delProd(id)
-      .subscribe(
-        (data: any) => {
-          this.busy = false;
-          this.toastr.success(data.message);
-          this.listProd();
-          console.log(data);
-        },
-        (err: any) => {
-          this.toastr.error(err.message);
-          this.busy = false;
-          console.log(err);
-        }
-
-      );
+    const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    this.saveAsExcelFile(excelBuffer, 'produtos');
   }
 
 
 
-  search() {
-    if (this.name == "") {
-      this.ngOnInit();
-    } else {
-      this.product = this.product.filter(res => {
-        return res.title.toLocaleLowerCase().match(this.name.toLocaleLowerCase());
-      })
-    }
+  saveAsExcelFile(buffer: any, fileName: string) {
+    const data: Blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url: string = window.URL.createObjectURL(data);
+    const a: HTMLAnchorElement = document.createElement('a');
+    a.href = url;
+    a.download = fileName + '.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   }
 
 }

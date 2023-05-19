@@ -5,11 +5,12 @@ const app = express();
 const mongoose = require('mongoose')
 const router = express.Router();
 const cors = require('cors');
+require("dotenv").config();
 
-mongoose.connect(config.connectionString);
+
+mongoose.connect(process.env.MONGO_URL);
 
 app.use(cors());
-
 
 app.use(bodyParser.json(
     { limit: '5mb' }

@@ -12,34 +12,41 @@ import { ExitsPageComponent } from './pages/features/exits-page/exits-page.compo
 import { DetailsPageComponent } from './pages/features/details-page/details-page.component';
 import { ProducRegistrationPageComponent } from './pages/store/produc-registration-page/produc-registration-page.component';
 import { AuthService } from './services/auth.service';
+import { PasswordChangePageComponent } from './pages/account/password-change-page/password-change-page.component';
 
 const routes: Routes = [
-  // { path: '', component: ProducRegistrationPageComponent },
+  // { path: 'teste', component: ProducRegistrationPageComponent },
 
   {
     path: '', component: LoginPageComponent
   },
   {
-    path: '',
+    path: 'store',
     component: FramePageComponent,
     children: [
-      { path: 'store', component: ProductsPageComponent, canActivate: [AuthService] },
-      { path: 'sale', component: SalePageComponent, canActivate: [AuthService] },
-
+      { path: '', component: ProductsPageComponent, canActivate: [AuthService] },
+    ]
+  },
+  {
+    path: 'sale',
+    component: FramePageComponent,
+    children: [
+      { path: '', component: SalePageComponent, canActivate: [AuthService] },
     ]
   },
   {
     path: 'account',
     component: FramePageComponent,
     children: [
-      { path: '', component: NewUserPageComponent, canActivate: [AuthService] },
+      { path: 'new-user', component: NewUserPageComponent, canActivate: [AuthService] },
+      { path: 'passwordChage', component: PasswordChangePageComponent, canActivate: [AuthService] },
     ]
   },
   {
     path: 'features',
     component: FramePageComponent,
     children: [
-      { path: '', component: SalesPageComponent, canActivate: [AuthService] },
+      { path: 'sales', component: SalesPageComponent, canActivate: [AuthService] },
       { path: 'entranceAndExit', component: EntranceAndExitComponent, canActivate: [AuthService] },
       { path: 'invoicing', component: InvoicingPageComponent, canActivate: [AuthService] },
       { path: 'exits', component: ExitsPageComponent, canActivate: [AuthService] },

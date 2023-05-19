@@ -1,9 +1,9 @@
 import { Cart } from "../models/cart-model";
 import { CartItem } from "../models/cart-item.model";
 import { Product } from "../models/product.model";
+import { DataService } from "../services/data.service";
 
 export class CartUtil {
-
   public static get(): Cart {
     // Recupera os dados do LocalStorage
     const data = localStorage.getItem('shopcart');
@@ -30,15 +30,16 @@ export class CartUtil {
     // Gera o novo item
     const item = new CartItem(_id, title, quantity, discount, price, totalWithDiscount);
 
+    // Calcula o valor total com desconto do item
+    item.totalWithDiscount = (item.quantity * item.price) - ((item.quantity * item.price) * item.discount / 100);
     // Adiciona ao carrinho
 
     const existingItemIndex = cart.items.findIndex(i => i._id === item._id);
     if (existingItemIndex > -1) {
       cart.items[existingItemIndex].quantity += item.quantity;
-      cart.items[existingItemIndex].totalWithDiscount += item.quantity * item.price;
+      cart.items[existingItemIndex].totalWithDiscount += item.totalWithDiscount;
     } else {
       cart.items.push(item);
-      item.totalWithDiscount = (item.quantity * item.price) - ((item.quantity * item.price) * item.discount / 100);
     }
     // Salva no localStorage
     this.update(cart);
@@ -58,26 +59,40 @@ export class CartUtil {
     this.update(cart);
   };
 
+
+  public static updateItemDiscount(itemId: string, itemDiscount: number): void {
+    // Obtém o carrinho atual
+    const cart = this.get();
+
+    // Encontra o item pelo ID
+    const itemIndex = cart.items.findIndex(item => item._id === itemId);
+
+    // Atualiza o desconto do item e recalcula o valor total com desconto
+    if (itemIndex !== -1) {
+      const item = cart.items[itemIndex];
+      item.discount = itemDiscount;
+      item.totalWithDiscount = item.quantity * item.price * (1 - item.discount / 100);
+    }
+
+    // Salva a lista de itens atualizada no LocalStorage
+    this.update(cart);
+  }
+
   public static clear() {
     localStorage.removeItem('shopcart');
 
   }
-
-
   public static getItems(): CartItem[] {
     return this.get().items;
   }
 
 
-  public static updateItemQuantity(item: CartItem): void {
-    let cart = this.get();
-    const index = cart.items.findIndex(i => i._id === item._id);
-    if (index > -1) {
-      cart.items[index] = item;
-      item.totalWithDiscount = (item.quantity * item.price) - ((item.quantity * item.price) * item.discount / 100);
-    }
-    this.update(cart);
+  public static calculoItemWithDiscount(item: CartItem): number {
+    item.totalWithDiscount = (item.quantity * item.price) - ((item.quantity * item.price) * item.discount / 100);
+    return item.totalWithDiscount;
   }
+
+
 
 
   public static removeItem(item: CartItem): void {
@@ -88,7 +103,6 @@ export class CartUtil {
     }
     this.update(cart);
   }
-
 
   public static getSubtotal(): number {
     return this.getItems().reduce((total, item) => {
@@ -122,5 +136,7 @@ export class CartUtil {
   private static update(cart: Cart) {
     localStorage.setItem('shopcart', JSON.stringify(cart));
   }
+
+
 
 }
