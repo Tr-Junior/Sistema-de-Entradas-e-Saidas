@@ -30,6 +30,7 @@ exports.update = async (id, data) => {
         $set: {
             description: data.description,
             value: data.value,
+            formPaymentExit: data.formPaymentExit,
             date: data.date
         }
     });

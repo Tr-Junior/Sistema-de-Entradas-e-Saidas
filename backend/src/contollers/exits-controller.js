@@ -48,6 +48,7 @@ exports.post = async (req, res, next) => {
     let contract = new ValidationContract();
     contract.hasMinLen(req.body.description, 3, 'O título deve ser pelo menos 3 caracteres');
     contract.hasMinLen(req.body.value, 1, 'valor de ser informado');
+    contract.hasMinLen(req.body.formPaymentExit, 1, 'a forma de pagamento deve ser informado');
     contract.hasMinLen(req.body.date, 3, 'a Data é requerida');
 
     if (!contract.isValid()) {
@@ -58,6 +59,7 @@ exports.post = async (req, res, next) => {
         await repository.create({
             description: req.body.description,
             value: req.body.value,
+            formPaymentExit: req.body.formPaymentExit,
             date: req.body.date
         });
         res.status(201).send({

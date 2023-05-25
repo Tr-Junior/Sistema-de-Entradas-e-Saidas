@@ -14,8 +14,8 @@ import { environment } from "src/environments/environment.development";
 })
 export class DataService {
 
-  // public API = `${environment.API}`;
-  public API = 'http://wrconexao.kinghost.net:21048';
+  public API = `${environment.API}`;
+
 
   constructor(private http: HttpClient) { }
 

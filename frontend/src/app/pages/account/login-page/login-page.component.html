@@ -11,16 +11,18 @@
         <div [formGroup]="form">
           <label for="name" class="block text-800 text-xl font-medium mb-2">Usuário</label>
           <input formControlName="name" id="name" type="text" placeholder="Usuário" pInputText
-            class="w-full md:w-30rem mb-5" style="padding:1rem">
+            class="w-full md:w-30rem mb-5" style="padding:1rem" (keydown.enter)="submit()" pHotkey="enter">
 
           <label for="password" class="block text-800 font-medium text-xl mb-2">Senha</label>
           <p-password formControlName="password" id="password" [feedback]="false" placeholder="Senha"
-            [toggleMask]="true" styleClass="mb-5" inputStyleClass="w-full p-3 md:w-30rem"></p-password>
+            [toggleMask]="true" styleClass="mb-5" inputStyleClass="w-full p-3 md:w-30rem" (keydown.enter)="submit()"
+            pHotkey="enter"></p-password>
 
           <div class="flex align-items-center justify-content-between mb-5 gap-5">
 
           </div>
-          <button pButton pRipple label="Entrar" class="w-full p-3 text-xl" (click)="submit()"></button>
+          <button key="enter" pButton pRipple label="Entrar" class="w-full p-3 text-xl" pHotkey="enter"
+            (click)="submit()"></button>
         </div>
       </div>
     </div>

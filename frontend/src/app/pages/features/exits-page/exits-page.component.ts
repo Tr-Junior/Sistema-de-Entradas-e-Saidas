@@ -28,6 +28,8 @@ export class ExitsPageComponent {
   public clonedProducts: { [s: string]: Exits } = {};
   public selectedExits!: Exits;
   public updating: boolean = false;
+  public formPaymentOptions: { label: string, value: string }[];
+
 
   constructor(
     private primengConfig: PrimeNGConfig,
@@ -45,6 +47,9 @@ export class ExitsPageComponent {
       value: ['', Validators.compose([
         Validators.required
       ])],
+      formPaymentExit: ['', Validators.compose([
+        Validators.required
+      ])],
       date: ['', Validators.compose([
         Validators.required
       ])]
@@ -60,12 +65,19 @@ export class ExitsPageComponent {
       today: 'Hoje',
       clear: 'Limpar'
     };
+
+    this.formPaymentOptions = this.getFormPaymentExit().map(option => ({ label: option, value: option }));
+
   }
 
   ngOnInit() {
     this.listExits();
     this.primengConfig.setTranslation(this.ptBR);
   };
+
+  getFormPaymentExit(): string[] {
+    return ['Dinheiro', 'Pix', 'Débito'];
+  }
 
   resetForm() {
     this.form.reset();

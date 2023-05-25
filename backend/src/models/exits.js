@@ -15,6 +15,11 @@ const schema = new Schema({
         trim: true
     },
 
+    formPaymentExit: {
+        type: String,
+        trim: true
+    },
+
     date: {
         type: Date,
         required: true,
