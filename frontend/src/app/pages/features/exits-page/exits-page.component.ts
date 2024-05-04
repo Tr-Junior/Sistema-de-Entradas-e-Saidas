@@ -29,7 +29,10 @@ export class ExitsPageComponent {
   public selectedExits!: Exits;
   public updating: boolean = false;
   public formPaymentOptions: { label: string, value: string }[];
-
+  public paymentSums: { [paymentMethod: string]: number } = {};
+  public paymentsMap?: any;
+  public paymentTotals: PaymentTotal[] = [];
+  public rangeDates?: Date[];
 
   constructor(
     private primengConfig: PrimeNGConfig,
@@ -72,6 +75,7 @@ export class ExitsPageComponent {
 
   ngOnInit() {
     this.listExits();
+    this.calculatePaymentTotals();
     this.primengConfig.setTranslation(this.ptBR);
   };
 
@@ -107,38 +111,106 @@ export class ExitsPageComponent {
   }
 
   searchDate() {
-    if (this.startDate && this.endDate) {
-      this.getExitsByDateRange(this.startDate, this.endDate);
+    if (this.rangeDates && this.rangeDates.length > 0) {
+      const startDate = this.rangeDates[0];
+      const endDate = this.rangeDates.length > 1 ? this.rangeDates[1] : startDate;
+      this.getExitsByDateRange(startDate, endDate);
     } else {
       this.listExits();
     }
   }
 
-  getExitsByDateRange(startDate: string, endDate: string) {
+  getExitsByDateRange(startDate: Date, endDate: Date) {
     this.busy = true;
     this.service.getExits().subscribe(
       (data: any) => {
-        this.busy = false;
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        this.exits = data.filter((exit: Exits) => {
-          const date = new Date(exit.date);
-          return date >= start && date <= end;
+        const selectedDate = new Date(startDate);
+        const nextDay = new Date(endDate);
+        nextDay.setDate(nextDay.getDate() + 1); // Adiciona um dia ao endDate
+
+        this.exits = data.filter((exits: Exits) => {
+          const exitsDate = new Date(exits.date);
+          return exitsDate >= selectedDate && exitsDate < nextDay;
         });
+
+        this.calculatePaymentTotals();
+
+        this.busy = false;
+      },
+      (err: any) => {
+        console.log(err);
+        this.busy = false;
       }
     );
   }
 
+
   listExits() {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+
     this.service.getExits().subscribe((data: any) => {
       this.busy = false;
       this.exits = data.filter((exit: Exits) => {
         const exitDate = new Date(exit.date);
-        const currentDate = new Date();
-        return exitDate.getMonth() === currentDate.getMonth();
+        return exitDate.getFullYear() === currentYear && exitDate.getMonth() === currentMonth;
       });
+
+      this.calculatePaymentTotals();
     });
   }
+
+
+
+  calculatePaymentTotals() {
+    this.paymentsMap = new Map<string, { total: number; color: string }>();
+    let totalSum = 0;
+
+    for (const exits of this.exits) {
+      const payment = exits.formPaymentExit;
+      const total = exits.value; // Use o valor da saída para o cálculo
+
+      totalSum += total;
+
+      if (this.paymentsMap.has(payment)) {
+        this.paymentsMap.set(payment, {
+          total: this.paymentsMap.get(payment).total + total,
+          color: this.paymentsMap.get(payment).color
+        });
+      } else {
+        let color;
+        switch (payment) {
+          case 'Dinheiro':
+            color = 'payment-cash';
+            break;
+          case 'Crédito':
+            color = 'payment-credit';
+            break;
+          case 'Débito':
+            color = 'payment-debit';
+            break;
+          case 'Pix':
+            color = 'payment-pix';
+            break;
+          default:
+            color = 'payment-others';
+            break;
+        }
+        this.paymentsMap.set(payment, { total, color });
+      }
+    }
+
+    this.paymentTotals = Array.from(this.paymentsMap, ([formPayment, { total, color }]) => ({
+      formPayment,
+      total,
+      color
+    }));
+
+    this.paymentTotals.push({ formPayment: 'Total', total: totalSum, color: '' });
+  }
+
+
 
   getExitsById(id: any) {
     this
@@ -224,8 +296,12 @@ export class ExitsPageComponent {
 
 
   clearSearch() {
-    this.startDate = null;
-    this.endDate = null;
+    this.rangeDates = [];
     this.listExits();
   }
+}
+interface PaymentTotal {
+  formPayment: string;
+  total: number;
+  color: string;
 }

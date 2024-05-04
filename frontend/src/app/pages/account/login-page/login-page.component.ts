@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { DataService } from 'src/app/services/data.service';
 import { Security } from 'src/app/utils/Security.util';
+import { environment } from 'src/environments/environment.development';
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
@@ -12,6 +13,7 @@ import { Security } from 'src/app/utils/Security.util';
 export class LoginPageComponent {
   public form: FormGroup;
   public busy = false;
+  public mode: string = environment.mode;
 
   constructor(
     private router: Router,

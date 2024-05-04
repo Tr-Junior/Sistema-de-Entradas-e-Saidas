@@ -1,7 +1,5 @@
 import { Cart } from "../models/cart-model";
 import { CartItem } from "../models/cart-item.model";
-import { Product } from "../models/product.model";
-import { DataService } from "../services/data.service";
 
 export class CartUtil {
   public static get(): Cart {
@@ -115,7 +113,7 @@ export class CartUtil {
   }
   public static getTotal(): number {
     return this.getItems().reduce((total, item) => {
-      return total = (item.quantity * item.price) - ((item.quantity * item.price) * item.discount / 100);
+      return (item.quantity * item.price) - ((item.quantity * item.price) * item.discount / 100);
     }, 0);
   }
   public static getGrandTotal(): number {

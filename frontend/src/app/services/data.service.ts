@@ -14,8 +14,9 @@ import { environment } from "src/environments/environment.development";
 })
 export class DataService {
 
-  public API = `${environment.API}`;
+  // public API = 'http://wrconexao.kinghost.net:21048';
 
+  public API = `${environment.API}`;
 
   constructor(private http: HttpClient) { }
 
@@ -27,9 +28,15 @@ export class DataService {
   }
 
   // Produtos
-  searchProduct(name: string): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.API}/products/search/` + name, { headers: this.composeHeaders() });
+  // searchProduct(name: string): Observable<Product[]> {
+  //   return this.http.get<Product[]>(`${this.API}/products/search/` + name, { headers: this.composeHeaders() });
+  // }
+
+  searchProduct(data: any): Observable<Product[]> {
+    return this.http.post<Product[]>(`${this.API}/products/search`, data, { headers: this.composeHeaders() });
   }
+
+
   getProduct(): Observable<any> {
     return this.http.get<Product[]>(`${this.API}/products`, { headers: this.composeHeaders() });
   }

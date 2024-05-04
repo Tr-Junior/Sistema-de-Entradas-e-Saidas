@@ -33,20 +33,29 @@ export class DetailsChartPageComponent {
   }
 
   listExits() {
+    const currentYear = new Date().getFullYear();
     this.service.getExits().subscribe((data: any) => {
-      this.exits = data;
+      this.exits = data.filter((exit: Exits) => {
+        const exitDate = new Date(exit.date);
+        return exitDate.getFullYear() === currentYear;
+      });
       this.calculateResult();
       this.generateChartData();
     });
   }
 
   listEntrances() {
+    const currentYear = new Date().getFullYear();
     this.service.getEntrances().subscribe((data: any) => {
-      this.entrances = data;
+      this.entrances = data.filter((entrance: Entrances) => {
+        const entranceDate = new Date(entrance.createDate);
+        return entranceDate.getFullYear() === currentYear;
+      });
       this.calculateResult();
       this.generateChartData();
     });
   }
+
 
 
   searchDate() {

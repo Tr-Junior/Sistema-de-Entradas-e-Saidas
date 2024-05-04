@@ -269,6 +269,26 @@ export class SalePageComponent {
     this.form.reset();
   }
 
+  // search(): void {
+  //   if (!this.searchQuery) {
+  //     this.product = [];
+  //     return;
+  //   }
+
+  //   this.busy = true;
+  //   this.service.searchProduct(this.searchQuery).subscribe({
+  //     next: (data: any) => {
+  //       this.busy = false;
+  //       this.product = data;
+  //     },
+  //     error: (err: any) => {
+  //       console.log(err);
+  //       this.busy = false;
+  //       this.toastr.error(err.message);
+  //     }
+  //   });
+  // }
+
   search(): void {
     if (!this.searchQuery) {
       this.product = [];
@@ -276,7 +296,11 @@ export class SalePageComponent {
     }
 
     this.busy = true;
-    this.service.searchProduct(this.searchQuery).subscribe({
+
+    // Crie um objeto com o campo "title" contendo o termo de pesquisa
+    const searchData = { title: this.searchQuery };
+
+    this.service.searchProduct(searchData).subscribe({
       next: (data: any) => {
         this.busy = false;
         this.product = data;
@@ -288,6 +312,7 @@ export class SalePageComponent {
       }
     });
   }
+
 
   onFormPaymentSelected(formPayment: string): void {
     this.selectedPayment = formPayment;
@@ -301,7 +326,6 @@ export class SalePageComponent {
 
   calcTroco() {
     if (this.total > 0) {
-      this.grandTotal = CartUtil.getGrandTotal();
       this.totalTroco = this.total - this.grandTotal;
       return this.totalTroco;
     } else {

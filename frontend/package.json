@@ -1,10 +1,11 @@
 {
   "name": "gerenciamento",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -31,6 +32,7 @@
     "chart.js": "^3.9.1",
     "cors": "^2.8.5",
     "font-awesome": "^4.7.0",
+    "http-server": "^14.1.1",
     "jwt-decode": "^3.1.2",
     "ng2-currency-mask": "^13.0.3",
     "ngx-toastr": "^16.1.1",

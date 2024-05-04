@@ -4,7 +4,8 @@ import { Security } from 'src/app/utils/Security.util';
 import { Router } from '@angular/router';
 import { FormGroup } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
-
+import { SelectItem } from 'primeng/api';
+import { PrimeNGConfig } from 'primeng/api';
 
 @Component({
   selector: 'app-navbar',
@@ -14,64 +15,33 @@ import { MenuItem } from 'primeng/api';
 export class NavbarComponent {
   public user!: User;
   items: MenuItem[] = [];
+  selectedTheme?: string;
+  themes: SelectItem[] = [
+    { label: 'Lara Dark Purple', value: 'lara-dark-purple' },
+    { label: 'Lara Dark Blue', value: 'lara-dark-blue' },
+    { label: 'Soho Dark', value: 'soho-dark' }
+  ];
 
   constructor(
     private router: Router,
-  ) {
-    this.items = [
-
-      {
-        label: 'Lista de Produtos',
-        icon: 'pi pi-list',
-        command: () => {
-          this.router.navigate(['/store']);
-        }
-      },
-      {
-        label: 'Caixa',
-        icon: 'pi pi-cart-plus',
-        command: () => {
-          this.router.navigate(['/sale']);
-        }
-      },
-      {
-        label: 'Vendas',
-        icon: 'pi pi-shopping-cart',
-        command: () => {
-          this.router.navigate(['/features']);
-        }
-      },
-      {
-        label: 'Faturamento',
-        icon: 'pi pi-chart-line',
-        command: () => {
-          this.router.navigate(['/features/entranceAndExit']);
-        }
-      },
-      {
-        label: 'Cadastro de usuário',
-        icon: 'pi pi-user-plus',
-        command: () => {
-          this.router.navigate(['/account']);
-        }
-      },
-      {
-        label: 'Sair',
-        icon: 'pi pi-sign-out',
-        command: () => {
-          this.logout();
-        }
-      }
-    ];
-  }
+    private primengConfig: PrimeNGConfig
+  ) { }
 
   ngOnInit(): void {
     this.user = Security.getUser();
+    this.selectedTheme = localStorage.getItem('selectedTheme') || 'lara-dark-purple';
+
   }
 
   logout() {
     Security.clear();
     this.router.navigate(['/']);
+  }
+
+
+  changeTheme() {
+    localStorage.setItem('selectedTheme', this.selectedTheme!);
+    window.location.reload(); // Recarrega a página para aplicar o novo tema
   }
 
 

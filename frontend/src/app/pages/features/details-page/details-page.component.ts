@@ -1,9 +1,8 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { PrimeNGConfig } from 'primeng/api';
 import { Entrances } from 'src/app/models/entrances.model';
 import { Exits } from 'src/app/models/exits.model';
 import { DataService } from 'src/app/services/data.service';
-
 
 @Component({
   selector: 'app-details-page',
@@ -23,6 +22,7 @@ export class DetailsPageComponent {
   public ptBR: any;
   public data: any[] = [];
   public options: any;
+  public rangeDates?: Date[];
 
   constructor(
     private service: DataService,
@@ -49,10 +49,12 @@ export class DetailsPageComponent {
 
   listExits() {
     this.service.getExits().subscribe((data: any) => {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
       this.exits = data.filter((exit: Exits) => {
         const exitDate = new Date(exit.date);
-        const currentDate = new Date();
-        return exitDate.getMonth() === currentDate.getMonth();
+        return exitDate.getMonth() === currentMonth && exitDate.getFullYear() === currentYear;
       });
       this.totalExits = this.exits.reduce((sum, exit) => sum + exit.value, 0);
       this.calculateResult();
@@ -61,10 +63,12 @@ export class DetailsPageComponent {
 
   listEntrances() {
     this.service.getEntrances().subscribe((data: any) => {
-      this.entrances = data.filter((entrances: Entrances) => {
-        const exitDate = new Date(entrances.createDate);
-        const currentDate = new Date();
-        return exitDate.getMonth() === currentDate.getMonth();
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      this.entrances = data.filter((entrance: Entrances) => {
+        const entranceDate = new Date(entrance.createDate);
+        return entranceDate.getMonth() === currentMonth && entranceDate.getFullYear() === currentYear;
       });
       this.totalEntrances = this.entrances.reduce((sum, entrance) => sum + entrance.value, 0);
       this.calculateResult();
@@ -82,14 +86,16 @@ export class DetailsPageComponent {
   }
 
   searchDate() {
-    if (this.startDate && this.endDate) {
-      this.getInOutByDateRange(this.startDate, this.endDate);
+    if (this.rangeDates && this.rangeDates.length > 0) {
+      const startDate = this.rangeDates[0];
+      const endDate = this.rangeDates.length > 1 ? this.rangeDates[1] : startDate;
+      this.getInOutByDateRange(startDate, endDate);
     } else {
       this.listExits();
     }
   }
 
-  getInOutByDateRange(startDate: string, endDate: string) {
+  getInOutByDateRange(startDate: Date, endDate: Date) {
     this.service.getExits().subscribe(
       (exitsData: any) => {
         this.service.getEntrances().subscribe(
@@ -100,8 +106,8 @@ export class DetailsPageComponent {
               const date = new Date(exit.date);
               return date >= start && date <= end;
             });
-            this.entrances = entrancesData.filter((entrances: Entrances) => {
-              const date = new Date(entrances.createDate);
+            this.entrances = entrancesData.filter((entrance: Entrances) => {
+              const date = new Date(entrance.createDate);
               return date >= start && date <= end;
             });
             this.totalExits = this.exits.reduce((sum, exit) => sum + exit.value, 0);
@@ -118,8 +124,7 @@ export class DetailsPageComponent {
   }
 
   clearSearch() {
-    this.startDate = null;
-    this.endDate = null;
+    this.rangeDates = [];
     this.listExits();
     this.listEntrances();
   }

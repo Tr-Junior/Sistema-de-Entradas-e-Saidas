@@ -36,6 +36,7 @@ export class ProductsPageComponent implements OnInit {
   public selectedProduct!: Product;
   public updating: boolean = false;
   public searchQuery: string = '';
+  totalPurchaseValue: number = 0;
 
 
   constructor(
@@ -81,7 +82,16 @@ export class ProductsPageComponent implements OnInit {
         (data: any) => {
           this.busy = false;
           this.product = data;
+          this.totalPurchaseValue = this.calculateTotalPurchaseValue(this.product);
         })
+  }
+
+  calculateTotalPurchaseValue(products: Product[]): number {
+    let totalValue = 0;
+    for (const product of products) {
+      totalValue += product.purchasePrice * product.quantity;
+    }
+    return totalValue;
   }
 
   refresh(): void {
@@ -171,23 +181,47 @@ export class ProductsPageComponent implements OnInit {
     }
   }
 
+  // search(): void {
+  //   if (!this.searchQuery) {
+  //     this.service.searchProduct(this.searchQuery).subscribe({
+  //       next: (data: any) => {
+  //         this.busy = false;
+  //         this.product = data;
+  //       },
+  //       error: (err: any) => {
+  //         console.log(err);
+  //         this.busy = false;
+  //       }
+  //     });
+  //     return;
+  //   }
+
+  //   this.busy = true;
+  //   this.service.searchProduct(this.searchQuery).subscribe({
+  //     next: (data: any) => {
+  //       this.busy = false;
+  //       this.product = data;
+  //     },
+  //     error: (err: any) => {
+  //       console.log(err);
+  //       this.busy = false;
+  //       this.toastr.error(err.message);
+  //     }
+  //   });
+  // }
+
   search(): void {
     if (!this.searchQuery) {
-      this.service.searchProduct(this.searchQuery).subscribe({
-        next: (data: any) => {
-          this.busy = false;
-          this.product = data;
-        },
-        error: (err: any) => {
-          console.log(err);
-          this.busy = false;
-        }
-      });
+      this.product = [];
       return;
     }
 
     this.busy = true;
-    this.service.searchProduct(this.searchQuery).subscribe({
+
+    // Crie um objeto com o campo "title" contendo o termo de pesquisa
+    const searchData = { title: this.searchQuery };
+
+    this.service.searchProduct(searchData).subscribe({
       next: (data: any) => {
         this.busy = false;
         this.product = data;

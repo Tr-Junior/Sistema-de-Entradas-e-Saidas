@@ -1,33 +1,33 @@
 <app-loading style="text-align: center" *ngIf="busy"></app-loading>
-<div [formGroup]="form" class="card grid flex flex-column md:flex-row gap-3 formgroup-inline justify-content-center">
-  <div class="field">
+<div [formGroup]="form" class="card formgrid grid">
+  <div class="field col">
     <span class="font-bold block mb-2">Nome do Produto</span>
     <input pInputText id="product" formControlName="title"
       [ngClass]="{'uk-form-danger': (!form.controls['title'].valid && !form.controls['title'].pristine) }" />
   </div>
-  <div class="field">
+  <div class="field col">
     <span class="font-bold block mb-2">Quantidade</span>
     <p-inputNumber formControlName="quantity" id="productQuantity" inputId="integeronly"
       [ngClass]="{'uk-form-danger': (!form.controls['quantity'].valid && !form.controls['quantity'].pristine) }">
     </p-inputNumber>
   </div>
-  <div class="field">
+  <div class="field col">
     <span class="font-bold block mb-2">Valor de compra</span>
     <p-inputNumber formControlName="purchasePrice" inputId="currency-us" mode="currency" currency="BRL" locale="pt"
       id="productPurchasePrice"
       [ngClass]="{'uk-form-danger': (!form.controls['purchasePrice'].valid && !form.controls['purchasePrice'].pristine) }">
     </p-inputNumber>
   </div>
-  <div class="field">
+  <div class="field col">
     <span class="font-bold block mb-2">Valor de venda</span>
     <p-inputNumber formControlName="price" inputId="currency-us" mode="currency" currency="BRL" locale="pt"
       id="productPrice" [ngClass]="{'uk-form-danger': (!form.controls['price'].valid && !form.controls['price']) }">
     </p-inputNumber>
   </div>
-  <div class="card flex justify-content-center">
-    <p-button icon="pi pi-check" label="Salvar" (click)="submit()" *ngIf="!busy"></p-button>
-  </div>
-  <div class="card flex justify-content-center">
-    <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-danger" (onClick)="resetForm()"></p-button>
+  <div class="field col">
+    <span class="font-bold block mb-2">Ações</span>
+    <p-button class="p-2" icon="pi pi-check" label="Salvar" (click)="submit()" *ngIf="!busy"></p-button>
+
+    <p-button class="p-2" label="Cancelar" icon="pi pi-times" styleClass="p-button-danger" (onClick)="resetForm()"></p-button>
   </div>
 </div>

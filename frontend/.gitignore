@@ -42,7 +42,7 @@ testem.log
 Thumbs.db
 
 # enviroments
-environment.ts
+environment.production.ts
 
 
 logo.png

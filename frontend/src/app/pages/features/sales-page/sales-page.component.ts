@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
-import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { DataService } from 'src/app/services/data.service';
-import { MessageService, PrimeNGConfig } from 'primeng/api';
-import { Order, PaymentTotal } from 'src/app/models/order.models';
+import { PrimeNGConfig } from 'primeng/api';
+import { Order } from 'src/app/models/order.models';
 
 @Component({
   selector: 'app-sales-page',
@@ -19,7 +17,9 @@ export class SalesPageComponent implements OnInit {
   public date?: Date; // Data da venda
   public prodId = ""; // ID do produto
   public name: any; // Nome
-  public paymentsMap?: any; // Mapa para armazenar os totais de pagamento por tipo
+  public paymentsMap?: any;
+  public rangeDates?: Date[];
+  // Mapa para armazenar os totais de pagamento por tipo
   public color: any; // Cor
   public startDate: any; // Data inicial para filtrar as vendas por período
   public endDate: any; // Data final para filtrar as vendas por período
@@ -48,22 +48,20 @@ export class SalesPageComponent implements OnInit {
     this.primengConfig.setTranslation(this.ptBR);
   }
 
-  // Listar as vendas
   listSales() {
     this.busy = true;
     this.service.getOrder().subscribe(
       (data: any) => {
-        // Filtrar as vendas pelo mês atual
+        const currentDate = new Date();
+        // Filtrar as vendas pelo dia atual
         this.order = data.filter((order: Order) => {
           const exitDate = new Date(order.createDate);
-          const currentDate = new Date();
           return (
             exitDate.getDate() === currentDate.getDate() &&
             exitDate.getMonth() === currentDate.getMonth() &&
             exitDate.getFullYear() === currentDate.getFullYear()
           );
         });
-
 
         this.busy = false;
       },
@@ -72,6 +70,116 @@ export class SalesPageComponent implements OnInit {
         this.busy = false;
       }
     );
+  }
+
+  listSalesValue() {
+    this.busy = true;
+    this.service.getOrder().subscribe(
+      (data: any) => {
+        const currentDate = new Date();
+        // Filtrar as vendas pelo dia atual
+        this.order = data.filter((order: Order) => {
+          const exitDate = new Date(order.createDate);
+          return (
+            exitDate.getDate() === currentDate.getDate() &&
+            exitDate.getMonth() === currentDate.getMonth() &&
+            exitDate.getFullYear() === currentDate.getFullYear()
+          );
+        });
+
+        this.calculatePaymentTotals();
+
+        this.busy = false;
+      },
+      (err: any) => {
+        console.log(err);
+        this.busy = false;
+      }
+    );
+  }
+
+  searchDate() {
+    if (this.rangeDates && this.rangeDates.length > 0) {
+      const startDate = this.rangeDates[0];
+      const endDate = this.rangeDates.length > 1 ? this.rangeDates[1] : startDate;
+      this.getSalesByDateRange(startDate, endDate);
+    } else {
+      this.listSales();
+    }
+  }
+
+  getSalesByDateRange(startDate: Date, endDate: Date) {
+    this.busy = true;
+    this.service.getOrder().subscribe(
+      (data: any) => {
+        const selectedDate = new Date(startDate);
+        const nextDay = new Date(endDate);
+        nextDay.setDate(nextDay.getDate() + 1); // Adiciona um dia ao endDate
+
+        this.order = data.filter((order: Order) => {
+          const orderDate = new Date(order.createDate);
+          return orderDate >= selectedDate && orderDate < nextDay;
+        });
+
+        this.calculatePaymentTotals();
+
+        this.busy = false;
+      },
+      (err: any) => {
+        console.log(err);
+        this.busy = false;
+      }
+    );
+  }
+
+
+
+
+  calculatePaymentTotals() {
+    this.paymentsMap = new Map<string, { total: number; color: string }>();
+    let totalSum = 0;
+
+    for (const order of this.order) {
+      const payment = order.sale.formPayment;
+      const total = order.sale.total;
+
+      totalSum += total;
+
+      if (this.paymentsMap.has(payment)) {
+        this.paymentsMap.set(payment, {
+          total: this.paymentsMap.get(payment).total + total,
+          color: this.paymentsMap.get(payment).color
+        });
+      } else {
+        let color = '';
+        switch (payment) {
+          case 'Dinheiro':
+            color = 'payment-cash';
+            break;
+          case 'Crédito':
+            color = 'payment-credit';
+            break;
+          case 'Débito':
+            color = 'payment-debit';
+            break;
+          case 'Pix':
+            color = 'payment-pix';
+            break;
+          default:
+            color = 'payment-others';
+            break;
+        }
+        this.paymentsMap.set(payment, { total, color });
+      }
+    }
+
+    this.paymentTotals = Array.from(this.paymentsMap, ([formPayment, { total, color }]) => ({
+      formPayment,
+      total,
+      color
+    }));
+
+    this.paymentTotals.push({ formPayment: 'Total', total: totalSum, color: '' });
   }
 
   // Deletar uma venda
@@ -107,178 +215,6 @@ export class SalesPageComponent implements OnInit {
     );
   }
 
-  // Listar os totais de pagamento
-  listSalesValue() {
-    this.busy = true;
-    this.service.getOrder().subscribe(
-      (data: any) => {
-        // Filtrar as vendas pelo mês atual
-        this.order = data.filter((order: Order) => {
-          const exitDate = new Date(order.createDate);
-          const currentDate = new Date();
-          return (
-            exitDate.getDate() === currentDate.getDate() &&
-            exitDate.getMonth() === currentDate.getMonth() &&
-            exitDate.getFullYear() === currentDate.getFullYear()
-          );
-        });
-
-
-
-        this.paymentsMap = new Map<string, { total: number; color: string }>();
-        let totalSum = 0;
-
-        for (const order of this.order) {
-          const payment = order.sale.formPayment;
-          const total = order.sale.total;
-
-          totalSum += total;
-
-          if (this.paymentsMap.has(payment)) {
-            this.paymentsMap.set(payment, {
-              total: this.paymentsMap.get(payment).total + total,
-              color: this.paymentsMap.get(payment).color
-            });
-          } else {
-            let color;
-            switch (payment) {
-              case 'Dinheiro':
-                color = 'payment-cash';
-                break;
-              case 'Crédito':
-                color = 'payment-credit';
-                break;
-              case 'Débito':
-                color = 'payment-debit';
-                break;
-              case 'Pix':
-                color = 'payment-pix';
-                break;
-              default:
-                color = 'payment-others';
-                break;
-            }
-            this.paymentsMap.set(payment, { total, color });
-          }
-        }
-
-        // Converter o mapa em um array de objetos PaymentTotal
-        this.paymentTotals = Array.from(this.paymentsMap, ([formPayment, { total, color }]) => ({
-          formPayment,
-          total,
-          color
-        }));
-
-        // Adicionar o total geral no final do array
-        this.paymentTotals.push({ formPayment: 'Total', total: totalSum, color: '' });
-
-        this.busy = false;
-      },
-      (err: any) => {
-        console.log(err);
-        this.busy = false;
-      }
-    );
-  }
-
-  // Filtrar as vendas por um intervalo de datas
-  searchDate() {
-    if (this.startDate && this.endDate) {
-      this.getSalesByDateRange(this.startDate, this.endDate);
-    } else {
-      this.listSales();
-    }
-  }
-
-  // Obter as vendas dentro de um intervalo de datas
-  getSalesByDateRange(startDate: string, endDate: string) {
-    this.busy = true;
-    this.service.getOrder().subscribe(
-      (data: any) => {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        this.order = data.filter((order: Order) => {
-          const date = new Date(order.createDate);
-          const start = new Date(startDate);
-          const end = new Date(endDate);
-          const isSingleDaySearch = start.getTime() === end.getTime();
-
-          if (isSingleDaySearch) {
-            return (
-              date.getDate() === start.getDate() &&
-              date.getMonth() === start.getMonth() &&
-              date.getFullYear() === start.getFullYear()
-            );
-          } else {
-            return (
-              date >= start &&
-              date <= end &&
-              date.getMonth() >= start.getMonth() &&
-              date.getMonth() <= end.getMonth() &&
-              date.getDate() >= start.getDate() &&
-              date.getDate() <= end.getDate()
-            );
-          }
-        });
-
-
-
-        this.paymentsMap = new Map<string, { total: number; color: string }>();
-        let totalSum = 0;
-
-        for (const order of this.order) {
-          const payment = order.sale.formPayment;
-          const total = order.sale.total;
-
-          totalSum += total;
-
-          if (this.paymentsMap.has(payment)) {
-            this.paymentsMap.set(payment, {
-              total: this.paymentsMap.get(payment).total + total,
-              color: this.paymentsMap.get(payment).color
-            });
-          } else {
-            let color;
-            switch (payment) {
-              case 'Dinheiro':
-                color = 'payment-cash';
-                break;
-              case 'Crédito':
-                color = 'payment-credit';
-                break;
-              case 'Débito':
-                color = 'payment-debit';
-                break;
-              case 'Pix':
-                color = 'payment-pix';
-                break;
-              default:
-                color = 'payment-others';
-                break;
-            }
-            this.paymentsMap.set(payment, { total, color });
-          }
-        }
-
-        // Converter o mapa em um array de objetos PaymentTotal
-        this.paymentTotals = Array.from(this.paymentsMap, ([formPayment, { total, color }]) => ({
-          formPayment,
-          total,
-          color
-        }));
-
-        // Adicionar o total geral no final do array
-        this.paymentTotals.push({ formPayment: 'Total', total: totalSum, color: '' });
-
-        this.busy = false;
-      },
-      (err: any) => {
-        console.log(err);
-        this.busy = false;
-      }
-    );
-  }
-
   // Pesquisar por nome de pagamento
   search() {
     if (this.name === '') {
@@ -292,9 +228,14 @@ export class SalesPageComponent implements OnInit {
 
   // Limpar a pesquisa
   clearSearch() {
-    this.startDate = null;
-    this.endDate = null;
+    this.rangeDates = [];
     this.listSales(); // Listar todas as vendas novamente
     this.listSalesValue(); // Atualizar os totais de pagamento
   }
+}
+
+interface PaymentTotal {
+  formPayment: string;
+  total: number;
+  color: any;
 }

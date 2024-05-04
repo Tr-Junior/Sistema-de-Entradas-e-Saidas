@@ -1,21 +1,24 @@
 <app-produc-registration-page></app-produc-registration-page>
 <div class="card">
   <p-table [value]="product" dataKey="_id" editMode="row" [tableStyle]="{'min-width': '50rem'}" [paginator]="true"
-    [rows]="10" [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
+    [rows]="100" [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }"
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} produtos"
-    [rowsPerPageOptions]="[ 10, 15, 25, 50, 100, 150, 200]" [tableStyle]="{'min-width': '50rem'}"
+    [rowsPerPageOptions]="[100, 150, 200, 250, 350, 500]" [tableStyle]="{'min-width': '50rem'}"
     styleClass="p-datatable-striped">
     <ng-template pTemplate="caption">
-      <div class="flex flex-wrap">
-        <span class="p-input-icon-left">
+      <div class="flex flex-wrap align-items-center">
+        <span class="p-input-icon-left align-items-center justify-content-center">
           <i class="pi pi-search"></i>
           <input pInputText type="text" [(ngModel)]="searchQuery" (ngModelChange)="search()"
             placeholder="Pesquisar produtos..." />
           <p-button icon="pi pi-times" styleClass=" p-button-danger p-button-text" (onClick)="clearSearch()"
             [disabled]="!searchQuery"></p-button>
         </span>
-        <div class="pl-8">
+        <div class="flex pl-8 align-items-center justify-content-center">
           <button pButton type="button" label="Exportar para Excel" (click)="exportToExcel()"></button>
+        </div>
+        <div class="flex p-3 m-auto bg-primary border-round align-items-center justify-content-center">
+          Valor Total em estoque {{totalPurchaseValue | currency}}
         </div>
       </div>
     </ng-template>
@@ -65,7 +68,11 @@
             <ng-template pTemplate="output">
               <div
                 [ngClass]="{'outofstock': product.quantity === 0, 'lowstock': (product.quantity != 0 && product.quantity <= 10),'instock': product.quantity > 10}">
-                {{product.quantity}}</div>
+                <span *ngIf="product.quantity !== 0">{{ product.quantity }}</span>
+                <span *ngIf="product.quantity === 0" class="badge">Fora de Estoque</span>
+              </div>
+
+
             </ng-template>
           </p-cellEditor>
         </td>

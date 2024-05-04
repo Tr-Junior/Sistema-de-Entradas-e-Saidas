@@ -43,7 +43,6 @@
               "node_modules/ngx-toastr/toastr.css"
             ],
             "scripts": [
-
             ]
           },
           "configurations": {
@@ -59,7 +58,12 @@
                   "maximumWarning": "2kb",
                   "maximumError": "4kb"
                 }
-
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.development.ts",
+                  "with": "src/environments/environment.production.ts"
+                }
               ],
               "outputHashing": "all"
             },
@@ -69,13 +73,7 @@
               "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": true,
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.development.ts"
-                }
-              ]
+              "namedChunks": true
             }
           },
           "defaultConfiguration": "production"
@@ -118,5 +116,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

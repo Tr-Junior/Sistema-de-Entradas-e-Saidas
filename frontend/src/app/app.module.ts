@@ -22,7 +22,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { DataService } from './services/data.service';
 import { CURRENCY_MASK_CONFIG, CurrencyMaskConfig, CurrencyMaskModule } from 'ng2-currency-mask';
 import { LoadingComponent } from './components/shared/loading/loading.component';
-import { registerLocaleData, DatePipe } from '@angular/common';
+import { registerLocaleData, DatePipe, CurrencyPipe } from '@angular/common';
 import { ToastrModule } from 'ngx-toastr';
 import { ProducRegistrationPageComponent } from './pages/store/produc-registration-page/produc-registration-page.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
@@ -46,7 +46,7 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { ChartModule } from 'primeng/chart';
 import { DetailsChartPageComponent } from './components/details-chart-page/details-chart-page.component';
 import { PasswordChangePageComponent } from './pages/account/password-change-page/password-change-page.component';
-import { CurrencyPipe } from '@angular/common';
+
 
 registerLocaleData(ptBR);
 
@@ -78,7 +78,8 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     ProducRegistrationPageComponent,
     DetailsPageComponent,
     DetailsChartPageComponent,
-    PasswordChangePageComponent
+    PasswordChangePageComponent,
+
 
   ],
   imports: [
@@ -89,7 +90,6 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     BrowserAnimationsModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    BrowserAnimationsModule,
     CurrencyMaskModule,
     HttpClientModule,
     ToastrModule.forRoot(),
@@ -121,9 +121,7 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor() {
 
-  }
 }
 
 
