@@ -11,6 +11,7 @@ router.post('/', authService.isAdmin, controller.post);
 router.put('/update/:id', authService.isAdmin, controller.put);
 router.put('/updateBody', authService.isAdmin, controller.updateByIdBody);
 router.delete('/:id', authService.isAdmin, controller.delete);
-router.get('/search/:title', authService.authorize, controller.getByTitle);
+// router.get('/search/:title', authService.authorize, controller.getByTitle);
+router.post('/search', authService.authorize, controller.searchByTitle);
 
 module.exports = router;

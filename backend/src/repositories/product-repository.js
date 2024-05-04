@@ -24,11 +24,20 @@ exports.getById = async (id) => {
     return res;
 }
 
+// exports.getByTitle = async (title) => {
+//     const res = await Product
+//         .find({ title: { $regex: title, $options: 'i' } }
+//         ).limit(50);
+//     return res;
+// }
+
 exports.getByTitle = async (title) => {
     const res = await Product
-        .find({ title: { $regex: title, $options: 'i' } });
+        .find({ title: { $regex: title, $options: 'i' } }
+        ).limit(25);
     return res;
-}
+};
+
 
 exports.create = async (data) => {
     var product = new Product(data)

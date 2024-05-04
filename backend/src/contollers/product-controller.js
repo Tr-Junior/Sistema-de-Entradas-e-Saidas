@@ -42,16 +42,30 @@ exports.getById = async (req, res, next) => {
     }
 }
 
-exports.getByTitle = async (req, res, next) => {
+// exports.getByTitle = async (req, res, next) => {
+//     try {
+//         const data = await repository.getByTitle(req.params.title);
+//         res.status(200).send(data);
+//     } catch (e) {
+//         res.status(500).send({
+//             message: 'falha ao processar a requisição'
+//         });
+//     }
+// }
+
+exports.searchByTitle = async (req, res, next) => {
     try {
-        const data = await repository.getByTitle(req.params.title);
+        const searchTerm = req.body.title; // Assumindo que o termo de pesquisa é enviado no corpo da requisição com o campo "title"
+        const data = await repository.getByTitle(searchTerm);
         res.status(200).send(data);
     } catch (e) {
         res.status(500).send({
             message: 'falha ao processar a requisição'
         });
     }
-}
+};
+
+
 
 exports.post = async (req, res, next) => {
 
