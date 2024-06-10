@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { faChartColumn, faChartBar, faChartGantt } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-entrance-and-exit',
@@ -7,7 +6,5 @@ import { faChartColumn, faChartBar, faChartGantt } from '@fortawesome/free-solid
   styleUrls: ['./entrance-and-exit.component.css']
 })
 export class EntranceAndExitComponent {
-  faChartColumn = faChartColumn;
-  faChartBar = faChartBar;
-  faChartGantt = faChartGantt;
+
 }

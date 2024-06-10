@@ -24,3 +24,68 @@
 :host ::ng-deep .row-accessories {
   background-color: rgba(0, 0, 0, 0.15) !important;
 }
+
+.form-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.form-item {
+  flex: 1;
+}
+
+.form-item:nth-child(2),
+.form-item:nth-child(3),
+.form-item:nth-child(4),
+.form-item:nth-child(5) {
+  flex: 0 0 100px;
+}
+
+.form-item:nth-child(6),
+.form-item:nth-child(7) {
+  flex: 0 0 150px;
+}
+
+.form-actions {
+  flex: 0 0 auto;
+}
+
+.actions-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Estilos para telas pequenas (até 450px de largura) */
+@media (max-width: 450px) {
+  .form-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem; /* Reduzindo o espaçamento entre os itens */
+    padding: 1rem; /* Reduzindo o padding do contêiner */
+  }
+
+  .form-item, .form-actions {
+    width: 100%;
+    /* Adicionando espaçamento entre os itens */
+  }
+
+  .actions-container {
+    justify-content: center;
+     /* Reduzindo o espaçamento entre os botões */
+  }
+
+  .form-item:nth-child(2),
+.form-item:nth-child(3),
+.form-item:nth-child(4),
+.form-item:nth-child(5) {
+  flex: 0 0 0px;
+}
+
+.form-item:nth-child(6),
+.form-item:nth-child(7) {
+  flex: 0 0 0px;
+}
+
+
+}

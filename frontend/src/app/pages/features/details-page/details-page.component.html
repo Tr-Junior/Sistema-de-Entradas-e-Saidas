@@ -8,6 +8,9 @@
       <span class="px-2"></span>
       <button pButton type="button" label="Limpar" icon="pi pi-times" (click)="clearSearch()"></button>
     </span>
+    <div class="flex col-4 m-auto font-bold text-xl bg-primary border-round align-items-center justify-content-center">
+      Valor Total em estoque {{totalPurchaseValue | currency}}
+    </div>
   </div>
   <p-card>
     <ng-template pTemplate="title">

@@ -3,9 +3,7 @@
 
 const ValidationContract = require('../validators/validators');
 const repository = require('../repositories/product-repository');
-const azure = require('azure-storage');
 const guid = require('guid');
-var config = require('../config');
 
 
 
@@ -42,17 +40,6 @@ exports.getById = async (req, res, next) => {
     }
 }
 
-// exports.getByTitle = async (req, res, next) => {
-//     try {
-//         const data = await repository.getByTitle(req.params.title);
-//         res.status(200).send(data);
-//     } catch (e) {
-//         res.status(500).send({
-//             message: 'falha ao processar a requisição'
-//         });
-//     }
-// }
-
 exports.searchByTitle = async (req, res, next) => {
     try {
         const searchTerm = req.body.title; // Assumindo que o termo de pesquisa é enviado no corpo da requisição com o campo "title"
@@ -72,6 +59,7 @@ exports.post = async (req, res, next) => {
     let contract = new ValidationContract();
     contract.hasMinLen(req.body.title, 3, 'O título deve ter pelo menos 3 caracteres');
     contract.hasMinLen(req.body.quantity, 1, 'A quantidade deve ter pelo menos 1 caractere');
+    contract.hasMinLen(req.body.min_quantity, 1, 'A quantidade minima deve ter pelo menos 1 caractere');
     contract.hasMinLen(req.body.purchasePrice, 1, 'O preço de  compra deve ter pelo menos 1 caractere');
     contract.hasMinLen(req.body.price, 1, 'O preço deve ter pelo menos 1 caractere');
 
@@ -84,6 +72,7 @@ exports.post = async (req, res, next) => {
             codigo: guid.raw().substring(0, 6),
             title: req.body.title,
             quantity: req.body.quantity,
+            min_quantity: req.body.min_quantity,
             purchasePrice: req.body.purchasePrice,
             price: req.body.price,
 

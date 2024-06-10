@@ -7,7 +7,7 @@ import { PrimeNGConfig } from 'primeng/api';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  // title = 'gerenciamento';
+   title = 'gerenciamento';
   constructor(
     private primengConfig: PrimeNGConfig
   ) { }

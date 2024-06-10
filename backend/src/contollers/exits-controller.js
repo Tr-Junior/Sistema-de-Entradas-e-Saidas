@@ -5,7 +5,6 @@ const ValidationContract = require('../validators/validators');
 const repository = require('../repositories/exits-repository');
 const azure = require('azure-storage');
 const guid = require('guid');
-var config = require('../config');
 
 
 

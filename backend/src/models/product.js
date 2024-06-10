@@ -21,6 +21,11 @@ const schema = new Schema({
         required: true,
         trim: true
     },
+    min_quantity: {
+        type: Number,
+        required: true,
+        trim: true
+    },
     purchasePrice: {
         type: Number,
         trim: true

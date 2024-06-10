@@ -40,6 +40,9 @@ export class NewUserPageComponent {
       confirmarSenha: ['', Validators.compose([
         Validators.required
       ])],
+      pass: ['', Validators.compose([
+        Validators.required
+      ])],
       roles: ['', Validators.compose([
         Validators.required
       ])]
@@ -85,6 +88,7 @@ export class NewUserPageComponent {
             '', // O ID será gerado automaticamente pelo backend
             this.form.value.name,
             this.form.value.password,
+            this.form.value.pass,
             this.form.value.roles
           );
 

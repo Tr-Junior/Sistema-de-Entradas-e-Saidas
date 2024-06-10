@@ -28,6 +28,7 @@ export class PasswordChangePageComponent implements OnInit {
       id: [{ value: '', disabled: true }],
       name: [{ value: '', disabled: true }],
       password: ['', Validators.required],
+      pass: ['', Validators.required],
       confirmarSenha: ['', Validators.required],
     }, { validators: this.passwordMatchValidator });
   }
@@ -43,7 +44,6 @@ export class PasswordChangePageComponent implements OnInit {
     this.busy = true;
     this.service.getUserById(id).subscribe(
       (data: any) => {
-        console.log(data);
         this.busy = false;
         this.form.controls['id'].setValue(data._id);
         this.form.controls['name'].setValue(data.name);
@@ -71,13 +71,12 @@ export class PasswordChangePageComponent implements OnInit {
     this.busy = true;
     const formData = {
       id: this.user._id,
-      password: this.form.value.password
+      password: this.form.value.password,
+      pass: this.form.value.pass
     };
     this.service.updatePassword(formData).subscribe(
       (data: any) => {
         this.busy = false;
-        console.log(data);
-        console.log(formData);
         this.toastr.success(data.message, 'Atualizado!');
         this.resetForm();
       },

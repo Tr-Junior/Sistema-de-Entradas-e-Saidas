@@ -3,12 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
-import { Table } from 'primeng/table';
-import { Observable } from 'rxjs';
-import { CartItem } from 'src/app/models/cart-item.model';
 import { Product } from 'src/app/models/product.model';
 import { DataService } from 'src/app/services/data.service';
-import { CartUtil } from 'src/app/utils/cart-util';
 
 
 
@@ -19,7 +15,7 @@ import { CartUtil } from 'src/app/utils/cart-util';
 })
 export class ProducRegistrationPageComponent {
   @Input() products!: Product;
-
+  public displayModal: boolean = false;
   public product: Product[] = [];
   public form: FormGroup;
   public busy = false;
@@ -45,6 +41,9 @@ export class ProducRegistrationPageComponent {
       quantity: ['', Validators.compose([
         Validators.required
       ])],
+      min_quantity: ['', Validators.compose([
+        Validators.required
+      ])],
       purchasePrice: ['', Validators.compose([
         Validators.required
       ])],
@@ -60,6 +59,7 @@ export class ProducRegistrationPageComponent {
 
   resetForm() {
     this.form.reset();
+    this.fecharModal();
   }
 
   listProd() {
@@ -73,13 +73,9 @@ export class ProducRegistrationPageComponent {
         })
   }
 
-
-
   refresh(): void {
     window.location.reload();
   }
-
-
 
   submit() {
     this.busy = true;
@@ -93,6 +89,7 @@ export class ProducRegistrationPageComponent {
           this.resetForm();
           this.listProd();
           console.log();
+          this.fecharModal();
         },
         error: (err: any) => {
           console.log(err);
@@ -101,5 +98,10 @@ export class ProducRegistrationPageComponent {
       }
 
       );
+  }
+
+  // Método para fechar o modal
+  fecharModal() {
+    this.displayModal = false;
   }
 }

@@ -1,8 +1,11 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { PrimeNGConfig } from 'primeng/api';
 import { Entrances } from 'src/app/models/entrances.model';
 import { Exits } from 'src/app/models/exits.model';
+import { Product } from 'src/app/models/product.model';
 import { DataService } from 'src/app/services/data.service';
+import { Security } from 'src/app/utils/Security.util';
 
 @Component({
   selector: 'app-details-page',
@@ -23,10 +26,15 @@ export class DetailsPageComponent {
   public data: any[] = [];
   public options: any;
   public rangeDates?: Date[];
+  public busy = false;
+  totalPurchaseValue: number = 0;
+  product: Product[] = [];
 
   constructor(
     private service: DataService,
     private primengConfig: PrimeNGConfig,
+    private router: Router
+
   ) {
 
     this.ptBR = {
@@ -42,9 +50,16 @@ export class DetailsPageComponent {
   }
 
   ngOnInit() {
+    Security.clearPass();
+    const sessionUser = Security.getPass();
+    if (sessionUser) {
+      this.router.navigate(['/login']);
+    }
     this.listEntrances();
     this.listExits();
     this.primengConfig.setTranslation(this.ptBR);
+    this.listProd();
+
   };
 
   listExits() {
@@ -127,5 +142,25 @@ export class DetailsPageComponent {
     this.rangeDates = [];
     this.listExits();
     this.listEntrances();
+  }
+
+  listProd() {
+    this
+      .service
+      .getProduct()
+      .subscribe(
+        (data: any) => {
+          this.busy = false;
+          this.product = data;
+          this.totalPurchaseValue = this.calculateTotalPurchaseValue(this.product);
+        })
+  }
+
+  calculateTotalPurchaseValue(products: Product[]): number {
+    let totalValue = 0;
+    for (const product of products) {
+      totalValue += product.purchasePrice * product.quantity;
+    }
+    return totalValue;
   }
 }

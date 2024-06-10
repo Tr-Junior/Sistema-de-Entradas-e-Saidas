@@ -5,6 +5,7 @@ export class Cart {
   paymentForm?: string;
   generalDiscount?: number = 0;
   total?: number;
+  customerName?: string;
 
   constructor() {
     this.items = [];

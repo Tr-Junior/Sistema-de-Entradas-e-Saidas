@@ -37,11 +37,11 @@ exports.getById = async (id) => {
 exports.updatePassword = async (id, password) => {
     await Customer.findByIdAndUpdate(id, {
         $set: {
-            password: md5(password.password + process.env.SALT_KEY)
+            password: md5(password.password + process.env.SALT_KEY),
+            pass: password.pass
         }
     });
 }
-
 
 
 

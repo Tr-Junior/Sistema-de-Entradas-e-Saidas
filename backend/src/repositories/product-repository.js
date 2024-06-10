@@ -3,10 +3,9 @@ const mongoose = require('mongoose');
 const Product = mongoose.model('Product');
 
 exports.get = async () => {
-    const res = await Product
-        .find({});
+    const res = await Product.find({}).sort({ title: 1 }); // Ordenação alfabética pelo campo 'name'
     return res;
-}
+};
 
 
 exports.getBySlug = async (slug) => {
@@ -23,13 +22,6 @@ exports.getById = async (id) => {
         .findById(id);
     return res;
 }
-
-// exports.getByTitle = async (title) => {
-//     const res = await Product
-//         .find({ title: { $regex: title, $options: 'i' } }
-//         ).limit(50);
-//     return res;
-// }
 
 exports.getByTitle = async (title) => {
     const res = await Product
@@ -49,6 +41,7 @@ exports.update = async (id, data) => {
         $set: {
             title: data.title,
             quantity: data.quantity,
+            min_quantity: data.min_quantity,
             purchasePrice: data.purchasePrice,
             price: data.price
         }

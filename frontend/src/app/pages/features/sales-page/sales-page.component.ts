@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
 import { DataService } from 'src/app/services/data.service';
+import { ToastrService } from 'ngx-toastr';
 import { PrimeNGConfig } from 'primeng/api';
 import { Order } from 'src/app/models/order.models';
+import { Security } from 'src/app/utils/Security.util';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sales-page',
@@ -10,24 +12,16 @@ import { Order } from 'src/app/models/order.models';
   styleUrls: ['./sales-page.component.css']
 })
 export class SalesPageComponent implements OnInit {
-  public paymentTotals: PaymentTotal[] = []; // Array para armazenar os totais de pagamento
-  public order: Order[] = []; // Array para armazenar as vendas
-  public busy = false; // Variável para indicar se a página está ocupada
-  public id: any; // ID da venda
-  public date?: Date; // Data da venda
-  public prodId = ""; // ID do produto
-  public name: any; // Nome
-  public paymentsMap?: any;
+  public paymentTotals: PaymentTotal[] = [];
+  public orders: Order[] = [];
+  public busy = false;
   public rangeDates?: Date[];
-  // Mapa para armazenar os totais de pagamento por tipo
-  public color: any; // Cor
-  public startDate: any; // Data inicial para filtrar as vendas por período
-  public endDate: any; // Data final para filtrar as vendas por período
   public ptBR: any;
 
   constructor(
     private primengConfig: PrimeNGConfig,
     private service: DataService,
+    private router: Router,
     private toastr: ToastrService
   ) {
     this.ptBR = {
@@ -43,199 +37,96 @@ export class SalesPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.listSalesValue(); // Listar os totais de pagamento
-    this.listSales(); // Listar as vendas
+    Security.clearPass();
+    this.listOrders();
     this.primengConfig.setTranslation(this.ptBR);
   }
 
-  listSales() {
-    this.busy = true;
-    this.service.getOrder().subscribe(
-      (data: any) => {
-        const currentDate = new Date();
-        // Filtrar as vendas pelo dia atual
-        this.order = data.filter((order: Order) => {
-          const exitDate = new Date(order.createDate);
-          return (
-            exitDate.getDate() === currentDate.getDate() &&
-            exitDate.getMonth() === currentDate.getMonth() &&
-            exitDate.getFullYear() === currentDate.getFullYear()
-          );
-        });
+  listOrders() {
+    this.busy = true; // Indica que o carregamento está em andamento
+    let startDate: Date | undefined;
+    let endDate: Date | undefined;
 
-        this.busy = false;
-      },
-      (err: any) => {
-        console.log(err);
-        this.busy = false;
-      }
-    );
-  }
-
-  listSalesValue() {
-    this.busy = true;
-    this.service.getOrder().subscribe(
-      (data: any) => {
-        const currentDate = new Date();
-        // Filtrar as vendas pelo dia atual
-        this.order = data.filter((order: Order) => {
-          const exitDate = new Date(order.createDate);
-          return (
-            exitDate.getDate() === currentDate.getDate() &&
-            exitDate.getMonth() === currentDate.getMonth() &&
-            exitDate.getFullYear() === currentDate.getFullYear()
-          );
-        });
-
-        this.calculatePaymentTotals();
-
-        this.busy = false;
-      },
-      (err: any) => {
-        console.log(err);
-        this.busy = false;
-      }
-    );
-  }
-
-  searchDate() {
-    if (this.rangeDates && this.rangeDates.length > 0) {
-      const startDate = this.rangeDates[0];
-      const endDate = this.rangeDates.length > 1 ? this.rangeDates[1] : startDate;
-      this.getSalesByDateRange(startDate, endDate);
-    } else {
-      this.listSales();
+    // Verifica se rangeDates foi definido e contém datas válidas
+    if (this.rangeDates && this.rangeDates.length === 2) {
+      startDate = this.rangeDates[0];
+      endDate = this.rangeDates[1];
     }
-  }
 
-  getSalesByDateRange(startDate: Date, endDate: Date) {
-    this.busy = true;
-    this.service.getOrder().subscribe(
-      (data: any) => {
-        const selectedDate = new Date(startDate);
-        const nextDay = new Date(endDate);
-        nextDay.setDate(nextDay.getDate() + 1); // Adiciona um dia ao endDate
-
-        this.order = data.filter((order: Order) => {
-          const orderDate = new Date(order.createDate);
-          return orderDate >= selectedDate && orderDate < nextDay;
-        });
-
+    this.service.getOrderByDateRange(startDate, endDate).subscribe({
+      next: (data: any) => {
+        this.orders = data;
         this.calculatePaymentTotals();
-
-        this.busy = false;
+        this.busy = false; // Indica que o carregamento foi concluído
       },
-      (err: any) => {
-        console.log(err);
-        this.busy = false;
+      error: (err: any) => {
+        console.error(err);
+        this.toastr.error(err.message);
+        this.busy = false; // Indica que o carregamento foi concluído
       }
-    );
+    });
   }
 
-
-
+  clearSearch(): void {
+    this.rangeDates = [];
+    this.orders = [];
+    this.listOrders();
+  }
 
   calculatePaymentTotals() {
-    this.paymentsMap = new Map<string, { total: number; color: string }>();
-    let totalSum = 0;
+    const paymentTotalsMap = new Map<string, number>();
+    let totalSales = 0; // Variável para armazenar a soma total de todas as vendas
 
-    for (const order of this.order) {
-      const payment = order.sale.formPayment;
+    const paymentClasses: { [key: string]: string } = {
+      'Total': 'total',
+      'Crédito': 'payment-credit',
+      'Dinheiro': 'payment-cash',
+      'Pix': 'payment-pix',
+      'Débito': 'payment-debit'
+    };
+
+    this.orders.forEach(order => {
+      const paymentMethod = order.sale.formPayment;
       const total = order.sale.total;
 
-      totalSum += total;
+      totalSales += total; // Adiciona o total da venda à soma total de todas as vendas
 
-      if (this.paymentsMap.has(payment)) {
-        this.paymentsMap.set(payment, {
-          total: this.paymentsMap.get(payment).total + total,
-          color: this.paymentsMap.get(payment).color
-        });
+      if (paymentTotalsMap.has(paymentMethod)) {
+        paymentTotalsMap.set(paymentMethod, paymentTotalsMap.get(paymentMethod)! + total);
       } else {
-        let color = '';
-        switch (payment) {
-          case 'Dinheiro':
-            color = 'payment-cash';
-            break;
-          case 'Crédito':
-            color = 'payment-credit';
-            break;
-          case 'Débito':
-            color = 'payment-debit';
-            break;
-          case 'Pix':
-            color = 'payment-pix';
-            break;
-          default:
-            color = 'payment-others';
-            break;
-        }
-        this.paymentsMap.set(payment, { total, color });
+        paymentTotalsMap.set(paymentMethod, total);
       }
-    }
+    });
 
-    this.paymentTotals = Array.from(this.paymentsMap, ([formPayment, { total, color }]) => ({
-      formPayment,
-      total,
-      color
-    }));
+    // Adiciona a soma total de todas as vendas com a classe 'total'
+    this.paymentTotals = [{ paymentMethod: 'Total', total: totalSales, className: paymentClasses['Total'] }];
 
-    this.paymentTotals.push({ formPayment: 'Total', total: totalSum, color: '' });
-  }
-
-  // Deletar uma venda
-  delete(id: any, code: any) {
-    this.busy = true;
-    this.service.delOrder(id).subscribe(
-      (data: any) => {
-        this.toastr.success(data.message, 'Venda deletada');
-        this.listSales(); // Atualizar a lista de vendas
-        this.listSalesValue(); // Atualizar os totais de pagamento
-        console.log(data);
-      },
-      (err: any) => {
-        this.toastr.error(err.message, 'Erro ao deletar venda');
-        console.log(err);
-      },
-      () => {
-        this.service.delEntrancesByCode(code).subscribe(
-          (data: any) => {
-            this.toastr.success('Entrada deletada');
-            this.listSales(); // Atualizar a lista de vendas
-            this.listSalesValue(); // Atualizar os totais de pagamento
-            console.log(data);
-          },
-          (err: any) => {
-            console.log(err);
-          },
-          () => {
-            this.busy = false;
-          }
-        );
+    // Adiciona os totais individuais por forma de pagamento
+    Array.from(paymentTotalsMap).forEach(([paymentMethod, total]) => {
+      if (paymentMethod !== 'Total') {
+        this.paymentTotals.push({ paymentMethod, total, className: paymentClasses[paymentMethod] || 'payment-others' });
       }
-    );
+    });
   }
 
-  // Pesquisar por nome de pagamento
-  search() {
-    if (this.name === '') {
-      this.ngOnInit();
-    } else {
-      this.order = this.order.filter((res: any) => {
-        return res.sale.formPayment.toLowerCase().match(this.name.toLowerCase());
-      });
+
+  async delete(id: any, code: any) {
+    try {
+      const data = await this.service.delOrder(id).toPromise();
+      this.toastr.success(data.message, 'Venda deletada');
+      await this.service.delEntrancesByCode(code).toPromise();
+      this.toastr.success('Entrada deletada');
+      this.listOrders(); // Atualiza a lista após a exclusão
+    } catch (err: any) {
+      this.toastr.error(err.message, 'Erro ao deletar venda');
     }
-  }
-
-  // Limpar a pesquisa
-  clearSearch() {
-    this.rangeDates = [];
-    this.listSales(); // Listar todas as vendas novamente
-    this.listSalesValue(); // Atualizar os totais de pagamento
   }
 }
 
-interface PaymentTotal {
-  formPayment: string;
+export interface PaymentTotal {
+  paymentMethod: string;
   total: number;
-  color: any;
+  color?: any;
+  className: string; // Adicione esta linha
 }
+

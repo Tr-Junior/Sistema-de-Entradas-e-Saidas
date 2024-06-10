@@ -7,6 +7,7 @@ import { Entrances } from 'src/app/models/entrances.model';
 import { Exits } from 'src/app/models/exits.model';
 import { Product } from 'src/app/models/product.model';
 import { DataService } from 'src/app/services/data.service';
+import { Security } from 'src/app/utils/Security.util';
 @Component({
   selector: 'app-invoicing-page',
   templateUrl: './invoicing-page.component.html',
@@ -42,8 +43,8 @@ export class InvoicingPageComponent {
   }
 
   ngOnInit() {
+    Security.clearPass();
     this.listEntrances();
-    this.primengConfig.setTranslation(this.ptBR);
   };
 
 

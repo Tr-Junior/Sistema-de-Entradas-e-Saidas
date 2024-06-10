@@ -1,4 +1,3 @@
-import { HttpParams } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,13 +5,13 @@ import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { Product } from 'src/app/models/product.model';
 import { DataService } from 'src/app/services/data.service';
-import { CustomValidator } from 'src/app/validators/custom.validator';
-import { ConfirmationService, MessageService, ConfirmEventType } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { CartUtil } from 'src/app/utils/cart-util';
 import { CartItem } from 'src/app/models/cart-item.model';
 import { Security } from 'src/app/utils/Security.util';
 import { User } from 'src/app/models/user.model';
 import * as XLSX from 'xlsx';
+import { LowStockNotificationService } from 'src/app/services/low-stok-notification.service';
 
 
 @Component({
@@ -37,6 +36,7 @@ export class ProductsPageComponent implements OnInit {
   public updating: boolean = false;
   public searchQuery: string = '';
   totalPurchaseValue: number = 0;
+  displayModal: boolean = false;
 
 
   constructor(
@@ -45,6 +45,7 @@ export class ProductsPageComponent implements OnInit {
     private service: DataService,
     private router: Router,
     private fb: FormBuilder,
+    private lowStockNotificationService: LowStockNotificationService,
     private toastr: ToastrService
   ) {
 
@@ -53,6 +54,9 @@ export class ProductsPageComponent implements OnInit {
         Validators.required
       ])],
       quantity: ['', Validators.compose([
+        Validators.required
+      ])],
+      min_quantity: ['', Validators.compose([
         Validators.required
       ])],
       purchasePrice: ['', Validators.compose([
@@ -70,6 +74,15 @@ export class ProductsPageComponent implements OnInit {
     this.user = Security.getUser();
   }
 
+
+  openModal() {
+    this.displayModal = true;
+  }
+
+  closeModal() {
+    this.displayModal = false;
+  }
+
   resetForm() {
     this.form.reset();
   }
@@ -82,42 +95,30 @@ export class ProductsPageComponent implements OnInit {
         (data: any) => {
           this.busy = false;
           this.product = data;
-          this.totalPurchaseValue = this.calculateTotalPurchaseValue(this.product);
         })
   }
 
-  calculateTotalPurchaseValue(products: Product[]): number {
-    let totalValue = 0;
-    for (const product of products) {
-      totalValue += product.purchasePrice * product.quantity;
-    }
-    return totalValue;
-  }
-
-  refresh(): void {
-    window.location.reload();
-  }
 
 
-  submit() {
-    this.busy = true;
-    this
-      .service
-      .createProduct(this.form.value)
-      .subscribe({
-        next: (data: any) => {
-          this.busy = false;
-          this.toastr.success(data.message, 'Produto cadastrado');
-          this.resetForm();
-        },
-        error: (err: any) => {
-          this.toastr.error(err.message);
-          this.busy = false;
-        }
-      }
+  // submit() {
+  //   this.busy = true;
+  //   this
+  //     .service
+  //     .createProduct(this.form.value)
+  //     .subscribe({
+  //       next: (data: any) => {
+  //         this.busy = false;
+  //         this.toastr.success(data.message, 'Produto cadastrado');
+  //         this.resetForm();
+  //       },
+  //       error: (err: any) => {
+  //         this.toastr.error(err.message);
+  //         this.busy = false;
+  //       }
+  //     }
 
-      );
-  }
+  //     );
+  // }
 
   delete(id: any) {
     this
@@ -143,6 +144,7 @@ export class ProductsPageComponent implements OnInit {
     this.selectedProduct = { ...product };
     this.form.controls['title'].setValue(product.title);
     this.form.controls['quantity'].setValue(product.quantity);
+    this.form.controls['min_quantity'].setValue(product.min_quantity);
     this.form.controls['purchasePrice'].setValue(product.purchasePrice);
     this.form.controls['price'].setValue(product.price);
   }
@@ -181,38 +183,10 @@ export class ProductsPageComponent implements OnInit {
     }
   }
 
-  // search(): void {
-  //   if (!this.searchQuery) {
-  //     this.service.searchProduct(this.searchQuery).subscribe({
-  //       next: (data: any) => {
-  //         this.busy = false;
-  //         this.product = data;
-  //       },
-  //       error: (err: any) => {
-  //         console.log(err);
-  //         this.busy = false;
-  //       }
-  //     });
-  //     return;
-  //   }
-
-  //   this.busy = true;
-  //   this.service.searchProduct(this.searchQuery).subscribe({
-  //     next: (data: any) => {
-  //       this.busy = false;
-  //       this.product = data;
-  //     },
-  //     error: (err: any) => {
-  //       console.log(err);
-  //       this.busy = false;
-  //       this.toastr.error(err.message);
-  //     }
-  //   });
-  // }
 
   search(): void {
     if (!this.searchQuery) {
-      this.product = [];
+      this.listProd();
       return;
     }
 
@@ -243,8 +217,7 @@ export class ProductsPageComponent implements OnInit {
         title: product.title,
         price: product.price,
         quantity: 1,
-        discount: 0,
-        totalWithDiscount: 0
+        discount: 0
       };
       const cart = CartUtil.get();
       const cartItem = cart.items.find(item => item._id === product._id);
@@ -269,7 +242,7 @@ export class ProductsPageComponent implements OnInit {
         cart.items.push(item);
         this.toastr.success(data.message, 'Produto adicionado');
       }
-      CartUtil.add(item._id, item.title, item.quantity, item.price, item.discount, item.totalWithDiscount);
+      CartUtil.add(item._id, item.title, item.quantity, item.price, item.discount);
     }
   }
 
@@ -286,6 +259,7 @@ export class ProductsPageComponent implements OnInit {
         'Código': product.codigo,
         'Nome': product.title,
         'Quantidade em Estoque': product.quantity,
+        'Quantidade minima em estoque': product.min_quantity,
         'Valor de Compra': product.purchasePrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
         'Valor de Venda': product.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
       };
@@ -299,6 +273,7 @@ export class ProductsPageComponent implements OnInit {
       { wch: 25 }, // Largura da coluna 'Código'
       { wch: 35 }, // Largura da coluna 'Nome'
       { wch: 20 }, // Largura da coluna 'Quantidade em Estoque'
+      { wch: 20 }, // Largura da coluna 'Quantidade minima em Estoque'
       { wch: 20 }, // Largura da coluna 'Valor de Compra'
       { wch: 20 }  // Largura da coluna 'Valor de Venda'
     ];
@@ -324,5 +299,6 @@ export class ProductsPageComponent implements OnInit {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   }
+
 
 }

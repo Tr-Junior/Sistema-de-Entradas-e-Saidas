@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Exits } from 'src/app/models/exits.model';
 import { DataService } from 'src/app/services/data.service';
 import { ConfirmationService, MessageService, ConfirmEventType, PrimeNGConfig } from 'primeng/api';
+import { Security } from 'src/app/utils/Security.util';
 
 
 @Component({
@@ -74,9 +75,9 @@ export class ExitsPageComponent {
   }
 
   ngOnInit() {
+    Security.clearPass();
     this.listExits();
     this.calculatePaymentTotals();
-    this.primengConfig.setTranslation(this.ptBR);
   };
 
   getFormPaymentExit(): string[] {

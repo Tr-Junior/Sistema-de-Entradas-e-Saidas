@@ -303,6 +303,11 @@ body {
   color: #66bb6a;
 }
 
+.min-stok {
+  font-weight: 700;
+  color: #576ef1;
+}
+
 :host ::ng-deep .row-accessories {
   background-color: rgba(0, 0, 0, 0.15) !important;
 }

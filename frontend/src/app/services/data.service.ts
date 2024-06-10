@@ -2,19 +2,21 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Product } from "../models/product.model";
 import { Observable } from "rxjs";
-import { Order } from "../models/order.models";
+import { Budget } from "../models/budget-model";
 import { Security } from "../utils/Security.util";
 import { Exits } from "../models/exits.model";
 import { Entrances } from "../models/entrances.model";
 import { User } from "../models/user.model";
 import { environment } from "src/environments/environment.development";
+import { Order } from "../models/order.models";
+import { ProductsBuy} from "../models/productsBuy-model";
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
 
-  // public API = 'http://wrconexao.kinghost.net:21048';
+  //public API = 'http://wrconexao.kinghost.net:21048';
 
   public API = `${environment.API}`;
 
@@ -92,14 +94,26 @@ export class DataService {
   delEntrancesByCode(code: any): Observable<any> {
     return this.http.delete(`${this.API}/entrance/deleteByCode/` + code, { headers: this.composeHeaders() });
   }
-  // Carrinho de compras
+
+  // Vendas
 
   createOrder(data: any) {
     return this.http.post(`${this.API}/orders`, data, { headers: this.composeHeaders() });
   }
+
   getOrder(): Observable<any> {
-    return this.http.get<Order[]>(`${this.API}/orders`, { headers: this.composeHeaders() });
+    return this.http.get<Order[]>(`${this.API}/orders/sales`, { headers: this.composeHeaders() });
   }
+
+  getOrderByDateRange(startDate?: Date, endDate?: Date): Observable<Order[]> {
+    let url = `${this.API}/orders/sales`;
+    if (startDate && endDate) {
+      url += `?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+    }
+    return this.http.get<Order[]>(url, { headers: this.composeHeaders() });
+  }
+
+
   getOrderById(id: any): Observable<any> {
     return this.http.get(`${this.API}/orders/getById/` + id, { headers: this.composeHeaders() });
   }
@@ -135,6 +149,41 @@ export class DataService {
   }
   checkUsernameExists(name: string) {
     return this.http.get<boolean>(`${this.API}/customers/check-username/${name}`, { headers: this.composeHeaders() });
+  }
+
+
+  //orçamentos
+
+  createBudget(data: any) {
+    return this.http.post(`${this.API}/budget`, data, { headers: this.composeHeaders() });
+  }
+  getBudget(): Observable<any> {
+    return this.http.get<Budget[]>(`${this.API}/budget`, { headers: this.composeHeaders() });
+  }
+  getBudgetById(id: any): Observable<any> {
+    return this.http.get(`${this.API}/budget/getById/` + id, { headers: this.composeHeaders() });
+  }
+  delBudget(id: any): Observable<any> {
+    return this.http.delete(`${this.API}/budget/` + id, { headers: this.composeHeaders() });
+  }
+  delBudgetByCode(code: any): Observable<any> {
+    return this.http.delete(`${this.API}/budget/deleteByCode/` + code, { headers: this.composeHeaders() });
+  }
+
+
+  //productBuy
+
+  createProductBuy(data: any) {
+    return this.http.post(`${this.API}/productBuy`, data, { headers: this.composeHeaders() });
+  }
+  getProductBuy(): Observable<any> {
+    return this.http.get<ProductsBuy[]>(`${this.API}/productBuy`, { headers: this.composeHeaders() });
+  }
+  updateProductBuy(data: any): Observable<any> {
+    return this.http.put(`${this.API}/productBuy/update`, data, { headers: this.composeHeaders() });
+  }
+  delProductBuy(id: any): Observable<any> {
+    return this.http.delete(`${this.API}/productBuy/` + id, { headers: this.composeHeaders() });
   }
 
 }

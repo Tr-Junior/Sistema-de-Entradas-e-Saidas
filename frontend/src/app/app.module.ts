@@ -7,7 +7,6 @@ import { ButtonModule } from 'primeng/button';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NavbarComponent } from './components/shared/navbar/navbar.component';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { LoginPageComponent } from './pages/account/login-page/login-page.component';
 import { NewUserPageComponent } from './pages/account/new-user-page/new-user-page.component';
 import { ProductsPageComponent } from './pages/store/products-page/products-page.component';
@@ -43,9 +42,20 @@ import { DropdownModule } from 'primeng/dropdown';
 import { MessagesModule } from 'primeng/messages';
 import { AuthService } from './services/auth.service';
 import { SplitButtonModule } from 'primeng/splitbutton';
+import { SidebarModule } from 'primeng/sidebar';
 import { ChartModule } from 'primeng/chart';
+import { SkeletonModule } from 'primeng/skeleton';
+import { DialogModule } from 'primeng/dialog';
+import { MenuModule } from 'primeng/menu';
+import { BadgeModule } from 'primeng/badge';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DetailsChartPageComponent } from './components/details-chart-page/details-chart-page.component';
 import { PasswordChangePageComponent } from './pages/account/password-change-page/password-change-page.component';
+import { BudgetPageComponent } from './pages/store/budget-page/budget-page.component';
+import { LowStockNotificationService } from './services/low-stok-notification.service';
+import { LoginModalComponent } from './pages/account/login-sales/login-sales.component';
+import { ProductsBuyComponent } from './pages/features/products-buy/products-buy.component';
 
 
 registerLocaleData(ptBR);
@@ -79,6 +89,10 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     DetailsPageComponent,
     DetailsChartPageComponent,
     PasswordChangePageComponent,
+    BudgetPageComponent,
+    LoginModalComponent,
+    ProductsBuyComponent
+
 
 
   ],
@@ -89,7 +103,6 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     FormsModule,
     BrowserAnimationsModule,
     ReactiveFormsModule,
-    FontAwesomeModule,
     CurrencyMaskModule,
     HttpClientModule,
     ToastrModule.forRoot(),
@@ -110,9 +123,16 @@ export const CustomCurrencyMaskConfig: CurrencyMaskConfig = {
     SplitButtonModule,
     ChartModule,
     CurrencyPipe,
+    SidebarModule,
+    MenuModule,
+    SkeletonModule,
+    DialogModule,
+    OverlayPanelModule,
+    BadgeModule,
+    ProgressSpinnerModule,
     MenubarModule
   ],
-  providers: [DataService, AuthService, ConfirmationService, MessageService, DatePipe,
+  providers: [DataService, AuthService, LowStockNotificationService, ConfirmationService, MessageService, DatePipe,
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     { provide: DEFAULT_CURRENCY_CODE, useValue: 'BRL' },
     { provide: CURRENCY_MASK_CONFIG, useValue: CustomCurrencyMaskConfig }

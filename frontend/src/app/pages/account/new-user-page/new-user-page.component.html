@@ -1,6 +1,6 @@
 <app-loading style="text-align: center" *ngIf="busy"></app-loading>
 
-<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+<div class="mt-3 surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
   <div class="flex flex-column align-items-center justify-content-center">
     <div
       style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%);">
@@ -23,12 +23,18 @@
             ng-dirty inputStyleClass="w-full p-3 md:w-30rem" [feedback]="false"></p-password>
           <small
             *ngIf="form.hasError('mismatch') && (form.controls['confirmarSenha'].dirty || form.controls['confirmarSenha'].touched)"
-            class=" flex text-red-500">As senhas não coincidem</small>
+            class=" flex text-red-500">As senhas não coincidem
+          </small>
+          <label class="block text-900 font-medium text-xl mb-2 pt-5">Senha Vendas</label>
+            <p-password formControlName="pass" placeholder="Senha - Vendas"
+            [ngClass]="{ 'ng-dirty': form.controls['pass'].invalid && form.controls['pass'].touched }"
+            ng-dirty inputStyleClass="w-full p-3 md:w-30rem" [feedback]="false"></p-password>
           <label class="block text-900 font-medium text-xl mb-2 pt-5">Tipo de usuário</label>
           <p-dropdown formControlName="roles" [options]="roles" placeholder="Selecione..."
             class="w-full md:w-30rem mb-5"
             [ngClass]="{ 'ng-dirty': form.controls['roles'].invalid && form.controls['roles'].touched }"
             ng-dirty></p-dropdown>
+
           <div class="card flex justify-center">
             <button pButton pRipple label="Salvar" class="w-full p-3 text-xl" (click)="submit()"></button>
             <span class="block pr-3"></span>

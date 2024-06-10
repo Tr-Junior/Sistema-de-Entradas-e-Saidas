@@ -21,6 +21,17 @@ exports.get = async (req, res, next) => {
     }
 }
 
+exports.getSales = async (req, res, next) => {
+    try {
+        const { startDate, endDate } = req.query; // Obtém as datas do corpo da requisição
+        const sales = await repository.getSalesByDateRange(startDate, endDate);
+        res.status(200).send(sales);
+    } catch (e) {
+        res.status(500).send({
+            message: 'Falha ao processar a requisição'
+        });
+    }
+}
 
 exports.post = async (req, res, next) => {
     try {
